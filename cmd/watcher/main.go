@@ -1,7 +1,7 @@
 // Copyright 2020 ChainSafe Systems
 // SPDX-License-Identifier: LGPL-3.0-only
 /*
-Provides the command-line interface for the chainbridge application.
+Provides the command-line interface for the watcher application.
 
 For configuration and CLI commands see the README: https://github.com/ChainSafe/ChainBridge.
 */
@@ -12,12 +12,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-
 	"strconv"
 
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
-	"github.com/ChainSafe/ChainBridge/chains/substrate"
-	"github.com/ChainSafe/ChainBridge/config"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/metrics/health"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
@@ -25,6 +21,10 @@ import (
 	log "github.com/ChainSafe/log15"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
+
+	"github.com/NuLink-network/watcher/chains/ethereum"
+	"github.com/NuLink-network/watcher/chains/substrate"
+	"github.com/NuLink-network/watcher/config"
 )
 
 var app = cli.NewApp()
@@ -64,11 +64,11 @@ var accountCommand = cli.Command{
 	Name:  "accounts",
 	Usage: "manage bridge keystore",
 	Description: "The accounts command is used to manage the bridge keystore.\n" +
-		"\tTo generate a new account (key type generated is determined on the flag passed in): chainbridge accounts generate\n" +
-		"\tTo import a keystore file: chainbridge accounts import path/to/file\n" +
-		"\tTo import a geth keystore file: chainbridge accounts import --ethereum path/to/file\n" +
-		"\tTo import a private key file: chainbridge accounts import --privateKey private_key\n" +
-		"\tTo list keys: chainbridge accounts list",
+		"\tTo generate a new account (key type generated is determined on the flag passed in): watcher accounts generate\n" +
+		"\tTo import a keystore file: watcher accounts import path/to/file\n" +
+		"\tTo import a geth keystore file: watcher accounts import --ethereum path/to/file\n" +
+		"\tTo import a private key file: watcher accounts import --privateKey private_key\n" +
+		"\tTo list keys: watcher accounts list",
 	Subcommands: []*cli.Command{
 		{
 			Action: wrapHandler(handleGenerateCmd),
@@ -104,10 +104,10 @@ var (
 // init initializes CLI
 func init() {
 	app.Action = run
-	app.Copyright = "Copyright 2019 ChainSafe Systems Authors"
-	app.Name = "chainbridge"
-	app.Usage = "ChainBridge"
-	app.Authors = []*cli.Author{{Name: "ChainSafe Systems 2019"}}
+	app.Copyright = "Copyright 2019 Watcher Systems Authors"
+	app.Name = "watcher"
+	app.Usage = "Watcher"
+	app.Authors = []*cli.Author{{Name: "Watcher Systems 2019"}}
 	app.Version = Version
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{

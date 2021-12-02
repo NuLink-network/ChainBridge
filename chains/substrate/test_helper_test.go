@@ -7,12 +7,13 @@ import (
 	"os"
 	"testing"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+
+	utils "github.com/NuLink-network/watcher/shared/substrate"
 )
 
 const TestEndpoint = "ws://127.0.0.1:9944"

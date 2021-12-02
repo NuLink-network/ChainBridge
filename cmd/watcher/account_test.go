@@ -147,31 +147,31 @@ func TestAccountCommands(t *testing.T) {
 		function    func(*cli.Context, *dataHandler) error
 	}{
 		{
-			"Test chainbridge account generate --secp256k1 --password \"abc\"",
+			"Test watcher account generate --secp256k1 --password \"abc\"",
 			[]string{"secp256k1", "password"},
 			[]interface{}{true, "abc"},
 			handleGenerateCmd,
 		},
 		{
-			"Test chainbridge account generate --sr25519 --password \"abc\"",
+			"Test watcher account generate --sr25519 --password \"abc\"",
 			[]string{"sr25519", "password"},
 			[]interface{}{true, "abc"},
 			handleGenerateCmd,
 		},
 		{
-			"Test chainbridge account import --secp256k1 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
+			"Test watcher account import --secp256k1 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
 			[]string{"secp256k1", "password", "privateKey"},
 			[]interface{}{true, "abc", "000000000000000000000000000000000000000000000000000000416c696365"},
 			handleImportCmd,
 		},
 		{
-			"Test chainbridge account import --sr25519 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
+			"Test watcher account import --sr25519 --password \"abc\" --privateKey 000000000000000000000000000000000000000000000000000000416c696365",
 			[]string{"sr25519", "password", "privateKey"},
 			[]interface{}{true, "abc", "0xfa67e5b3c421ac1b9e3d59a74f09fa18f9ad41ec381ba95e5087cb164c03121b"},
 			handleImportCmd,
 		},
 		{
-			"Test chainbridge account list",
+			"Test watcher account list",
 			[]string{},
 			[]interface{}{},
 			handleListCmd,

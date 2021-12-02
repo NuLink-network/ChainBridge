@@ -1,4 +1,4 @@
-module github.com/ChainSafe/ChainBridge
+module github.com/NuLink-network/watcher
 
 go 1.15
 

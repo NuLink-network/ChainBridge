@@ -9,9 +9,10 @@ import (
 	"math/big"
 	"time"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
+
+	utils "github.com/NuLink-network/watcher/shared/ethereum"
 )
 
 // Number of blocks to wait for an finalization event

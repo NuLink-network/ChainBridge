@@ -5,7 +5,7 @@ FROM  golang:1.13-stretch AS builder
 ADD . /src
 WORKDIR /src
 RUN go mod download
-RUN cd cmd/chainbridge && go build -o /bridge .
+RUN cd cmd/watcher && go build -o /bridge .
 
 # # final stage
 FROM debian:stretch-slim

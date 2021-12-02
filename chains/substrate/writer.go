@@ -11,11 +11,12 @@ import (
 
 	"github.com/ChainSafe/chainbridge-utils/core"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	metrics "github.com/ChainSafe/chainbridge-utils/metrics/types"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+
+	utils "github.com/NuLink-network/watcher/shared/substrate"
 )
 
 var _ core.Writer = &writer{}

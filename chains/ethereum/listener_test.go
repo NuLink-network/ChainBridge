@@ -10,17 +10,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	"github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/ChainSafe/log15"
 	"github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+
+	"github.com/NuLink-network/watcher/bindings/Bridge"
+	"github.com/NuLink-network/watcher/bindings/ERC20Handler"
+	"github.com/NuLink-network/watcher/bindings/ERC721Handler"
+	"github.com/NuLink-network/watcher/bindings/GenericHandler"
+	utils "github.com/NuLink-network/watcher/shared/ethereum"
+	ethtest "github.com/NuLink-network/watcher/shared/ethereum/testing"
 )
 
 type MockRouter struct {

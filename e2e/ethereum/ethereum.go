@@ -11,10 +11,6 @@ import (
 	"testing"
 	"time"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	"github.com/ChainSafe/ChainBridge/chains/ethereum"
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
 	"github.com/ChainSafe/chainbridge-utils/keystore"
@@ -26,6 +22,11 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
+
+	bridge "github.com/NuLink-network/watcher/bindings/Bridge"
+	"github.com/NuLink-network/watcher/chains/ethereum"
+	utils "github.com/NuLink-network/watcher/shared/ethereum"
+	ethtest "github.com/NuLink-network/watcher/shared/ethereum/testing"
 )
 
 var TestTimeout = time.Second * 30

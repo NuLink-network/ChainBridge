@@ -11,9 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
-
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"

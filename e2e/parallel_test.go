@@ -9,16 +9,17 @@ import (
 	"testing"
 	"time"
 
-	eth "github.com/ChainSafe/ChainBridge/e2e/ethereum"
-	ethutils "github.com/ChainSafe/ChainBridge/shared/ethereum"
-	ethtest "github.com/ChainSafe/ChainBridge/shared/ethereum/testing"
-	subutils "github.com/ChainSafe/ChainBridge/shared/substrate"
-	subtest "github.com/ChainSafe/ChainBridge/shared/substrate/testing"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	log "github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/common"
+
+	eth "github.com/NuLink-network/watcher/e2e/ethereum"
+	ethutils "github.com/NuLink-network/watcher/shared/ethereum"
+	ethtest "github.com/NuLink-network/watcher/shared/ethereum/testing"
+	subutils "github.com/NuLink-network/watcher/shared/substrate"
+	subtest "github.com/NuLink-network/watcher/shared/substrate/testing"
 )
 
 // Random recipient

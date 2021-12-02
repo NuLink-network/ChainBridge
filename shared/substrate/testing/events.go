@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/log15"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+
+	utils "github.com/NuLink-network/watcher/shared/substrate"
 )
 
 var TestTimeout = time.Second * 15

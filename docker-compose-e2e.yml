@@ -18,6 +18,6 @@ services:
   sub-chain:
     image: "chainsafe/chainbridge-substrate-chain:v1.3.0"
     container_name: sub-chain
-    command: chainbridge-substrate-chain --dev --alice --ws-external --rpc-external
+    command: watcher-substrate-chain --dev --alice --ws-external --rpc-external
     ports:
     - "9944:9944"

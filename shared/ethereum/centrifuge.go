@@ -4,8 +4,9 @@
 package utils
 
 import (
-	"github.com/ChainSafe/ChainBridge/bindings/CentrifugeAsset"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/NuLink-network/watcher/bindings/CentrifugeAsset"
 )
 
 func DeployAssetStore(client *Client) (common.Address, error) {

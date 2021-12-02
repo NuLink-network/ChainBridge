@@ -24,12 +24,6 @@ import (
 	"fmt"
 	"math/big"
 
-	bridge "github.com/ChainSafe/ChainBridge/bindings/Bridge"
-	erc20Handler "github.com/ChainSafe/ChainBridge/bindings/ERC20Handler"
-	erc721Handler "github.com/ChainSafe/ChainBridge/bindings/ERC721Handler"
-	"github.com/ChainSafe/ChainBridge/bindings/GenericHandler"
-	connection "github.com/ChainSafe/ChainBridge/connections/ethereum"
-	utils "github.com/ChainSafe/ChainBridge/shared/ethereum"
 	"github.com/ChainSafe/chainbridge-utils/blockstore"
 	"github.com/ChainSafe/chainbridge-utils/core"
 	"github.com/ChainSafe/chainbridge-utils/crypto/secp256k1"
@@ -40,6 +34,13 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	bridge "github.com/NuLink-network/watcher/bindings/Bridge"
+	erc20Handler "github.com/NuLink-network/watcher/bindings/ERC20Handler"
+	erc721Handler "github.com/NuLink-network/watcher/bindings/ERC721Handler"
+	"github.com/NuLink-network/watcher/bindings/GenericHandler"
+	connection "github.com/NuLink-network/watcher/connections/ethereum"
+	utils "github.com/NuLink-network/watcher/shared/ethereum"
 )
 
 var _ core.Chain = &Chain{}

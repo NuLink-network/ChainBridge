@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"testing"
 
-	utils "github.com/ChainSafe/ChainBridge/shared/substrate"
 	"github.com/ChainSafe/chainbridge-utils/msg"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
+
+	utils "github.com/NuLink-network/watcher/shared/substrate"
 )
 
 // WARNING: THIS METHOD IS UNSAFE AND MAY PANIC

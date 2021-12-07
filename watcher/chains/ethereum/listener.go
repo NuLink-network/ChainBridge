@@ -23,10 +23,13 @@ type listener struct {
 // Polling begins at the block defined in `StartBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *listener) pollBlocks() error {
-	var currentBlock = params.StartBlock
+	var (
+		currentBlock = params.StartBlock
+		retry        = params.BlockRetryLimit
+	)
+
 	log.Info("Polling Blocks...", "block", currentBlock)
 
-	var retry = params.BlockRetryLimit
 	for {
 		select {
 		case <-l.stop:
@@ -46,7 +49,13 @@ func (l *listener) pollBlocks() error {
 				continue
 			}
 
-			// Sleep if the difference is less than BlockDelay; (latest - current) < BlockDelay
+			// Sleep if currentBlock is greater than latestBlock; currentBlock > latestBlock
+			if currentBlock.Cmp(latestBlock) == 1 {
+				time.Sleep(params.BlockRetryInterval)
+				continue
+			}
+
+			// Sleep if the difference is less than BlockConfirmations; (latestBlock - currentBlock) < BlockConfirmations
 			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(params.BlockConfirmations) == -1 {
 				log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(params.BlockRetryInterval)
@@ -74,7 +83,7 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	query := buildQuery(params.DepositContractAddress, Deposit, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.conn.FilterLogs(context.Background(), query)
+	logs, err := l.conn.client.FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}

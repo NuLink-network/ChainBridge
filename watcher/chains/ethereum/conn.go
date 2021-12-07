@@ -11,7 +11,7 @@ import (
 type Connection struct {
 	endpoint string
 	http     bool
-	conn     *ethclient.Client
+	client   *ethclient.Client
 	stop     chan struct{}
 }
 
@@ -36,12 +36,12 @@ func (c *Connection) Connect() error {
 	if err != nil {
 		return err
 	}
-	c.conn = ethclient.NewClient(rpcClient)
+	c.client = ethclient.NewClient(rpcClient)
 	return nil
 }
 
 func (c *Connection) LatestBlock() (*big.Int, error) {
-	header, err := c.conn.HeaderByNumber(context.Background(), nil)
+	header, err := c.client.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func (c *Connection) LatestBlock() (*big.Int, error) {
 
 // Close terminates the client connection and stops any running routines
 func (c *Connection) Close() {
-	if c.conn != nil {
-		c.conn.Close()
+	if c.client != nil {
+		c.client.Close()
 	}
 	close(c.stop)
 }

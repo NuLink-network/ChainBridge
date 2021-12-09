@@ -43,13 +43,13 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 
 	meta, err := c.api.RPC.State.GetMetadataLatest()
 	if err != nil {
-		return fmt.Errorf("get gatest metadata failed, err: %v", err)
+		return fmt.Errorf("failed get the latest metadata, err: %v", err)
 	}
 
 	// Create call and extrinsic
 	call, err := types.NewCall(meta, string(method), args...)
 	if err != nil {
-		return fmt.Errorf("failed to construct call: %v", err)
+		return fmt.Errorf("failed to construct call, err: %v", err)
 	}
 
 	// Create the extrinsic
@@ -57,7 +57,7 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 
 	genesisHash, err := c.api.RPC.Chain.GetBlockHash(0)
 	if err != nil {
-		return fmt.Errorf("get genesis hash failed, err: %v", genesisHash)
+		return fmt.Errorf("failed to get the genesis hash, err: %v", genesisHash)
 	}
 	// Get latest runtime version
 	rv, err := c.api.RPC.State.GetRuntimeVersionLatest()
@@ -65,15 +65,15 @@ func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
 		return err
 	}
 
-	key, err := types.CreateStorageKey(meta, "System", "Account", signature.TestKeyringPairAlice.PublicKey, nil)
+	key, err := types.CreateStorageKey(meta, "System", "Account", c.key.PublicKey, nil)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("create storage key failed, err: %v", err)
 	}
 
 	var accountInfo types.AccountInfo
 	ok, err := c.api.RPC.State.GetStorageLatest(key, &accountInfo)
 	if err != nil || !ok {
-		panic(err)
+		return fmt.Errorf("failed to get the latest storage, err: %v", err)
 	}
 
 	nonce := uint32(accountInfo.Nonce)

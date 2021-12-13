@@ -11,12 +11,14 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 
+	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/params"
 )
 
 type listener struct {
-	conn Connection
-	stop chan struct{}
+	ethconn Connection
+	subconn substrate.Connection
+	stop    chan struct{}
 }
 
 // pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
@@ -41,7 +43,7 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
-			latestBlock, err := l.conn.LatestBlock()
+			latestBlock, err := l.ethconn.LatestBlock()
 			if err != nil {
 				log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -80,21 +82,26 @@ func (l *listener) pollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	log.Debug("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(params.DepositContractAddress, Deposit, latestBlock, latestBlock)
+	query := buildQuery(params.DepositContractAddress, Deposited, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.conn.client.FilterLogs(context.Background(), query)
+	logs, err := l.ethconn.client.FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}
 
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, lg := range logs {
-		_ = lg
-		// 1. get data from lg.Topics
+		// 1. get data from Topics and Data
+		staker := lg.Topics[0]
+		value := ethcommon.BytesToHash(lg.Data[:32]).Big()
+		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
 
 		// 2. send tx to substrate
-
+		// todo
+		if err := l.subconn.SubmitTx(substrate.BaseMethod, staker, value, periods); err != nil {
+			log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
+		}
 	}
 
 	return nil

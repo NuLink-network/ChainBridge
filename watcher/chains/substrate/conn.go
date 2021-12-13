@@ -7,8 +7,6 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/types"
 	"github.com/ethereum/go-ethereum/log"
-
-	"github.com/NuLink-network/watcher/watcher/utils"
 )
 
 type Connection struct {
@@ -38,7 +36,7 @@ func (c *Connection) Close() {
 	close(c.stop)
 }
 
-func (c *Connection) SubmitTx(method utils.Method, args ...interface{}) error {
+func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	log.Info("Submitting substrate call...", "method", method, "sender", c.key.Address)
 
 	meta, err := c.api.RPC.State.GetMetadataLatest()

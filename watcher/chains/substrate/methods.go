@@ -2,4 +2,9 @@ package substrate
 
 type Method string
 
-var BaseMethod Method = ""
+const Pallets = "pallets"
+
+var (
+	BaseMethod      Method = ""
+	RegisterWatcher Method = Pallets + ".register_watcher"
+)

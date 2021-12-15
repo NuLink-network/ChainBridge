@@ -2,9 +2,9 @@ package substrate
 
 type Method string
 
-const Pallets = "pallets"
+const NuProxy = "nuproxy"
 
 var (
 	BaseMethod      Method = ""
-	RegisterWatcher Method = Pallets + ".register_watcher"
+	RegisterWatcher Method = NuProxy + ".register_watcher"
 )

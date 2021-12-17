@@ -3,9 +3,9 @@ package substrate
 import (
 	"testing"
 
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client"
-	"github.com/centrifuge/go-substrate-rpc-client/config"
-	"github.com/centrifuge/go-substrate-rpc-client/signature"
+	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/config"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 )
 
 func TestConnection_RegisterWatcher(t *testing.T) {

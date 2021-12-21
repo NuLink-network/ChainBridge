@@ -12,15 +12,10 @@ type StakeInfo struct {
 	Coinbase      [32]byte
 	WorkBase      [32]byte
 	IsWork        bool
-	LockedBalance types.UCompact
+	LockedBalance types.U128
 	WorkCount     uint32
 }
 
 func (c *Connection) UpdateStakeInfo(stakeInfos []*StakeInfo) error {
-	s, err := types.EncodeToBytes(stakeInfos)
-	if err != nil {
-		return err
-	}
-
-	return c.SubmitTx(UpdateStakeInfo, s)
+	return c.SubmitTx(UpdateStakeInfo, stakeInfos)
 }

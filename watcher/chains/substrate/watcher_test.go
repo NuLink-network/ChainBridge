@@ -90,7 +90,7 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 						Coinbase:      bob.AsAccountID,
 						WorkBase:      common.BigToHash(big.NewInt(123)),
 						IsWork:        true,
-						LockedBalance: types.NewUCompact(big.NewInt(123456)),
+						LockedBalance: types.NewU128(*big.NewInt(123456)),
 						WorkCount:     10,
 					},
 				},
@@ -108,8 +108,6 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 				t.Errorf("UpdateStakeInfo() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			hexString, _ := types.EncodeToHexString(tt.args.stakeInfos[0])
-			t.Log("hex: ", hexString)
 		})
 	}
 }

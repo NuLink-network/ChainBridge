@@ -71,7 +71,7 @@ func (c *Config) validate() error {
 			return fmt.Errorf("required field chain.Type empty for chain %s", chain.Id)
 		}
 		if chain.Endpoint == "" {
-			return fmt.Errorf("required field chain.Endpoint empty for chain %s", chain.Id)
+			return fmt.Errorf("required field chain.URL empty for chain %s", chain.Id)
 		}
 		if chain.Name == "" {
 			return fmt.Errorf("required field chain.Name empty for chain %s", chain.Id)

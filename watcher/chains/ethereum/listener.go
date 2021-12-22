@@ -15,16 +15,16 @@ import (
 	"github.com/NuLink-network/watcher/watcher/params"
 )
 
-type listener struct {
-	ethconn Connection
-	subconn substrate.Connection
-	stop    chan struct{}
+type Listener struct {
+	Ethconn *Connection
+	Subconn *substrate.Connection
+	Stop    chan struct{}
 }
 
-// pollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
+// PollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
 // Polling begins at the block defined in `StartBlock`. Failed attempts to fetch the latest block or parse
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
-func (l *listener) pollBlocks() error {
+func (l *Listener) PollBlocks() error {
 	var (
 		currentBlock = params.StartBlock
 		retry        = params.BlockRetryLimit
@@ -34,7 +34,7 @@ func (l *listener) pollBlocks() error {
 
 	for {
 		select {
-		case <-l.stop:
+		case <-l.Stop:
 			return errors.New("polling terminated")
 		default:
 			// No more retries, goto next block
@@ -43,7 +43,7 @@ func (l *listener) pollBlocks() error {
 				return nil
 			}
 
-			latestBlock, err := l.ethconn.LatestBlock()
+			latestBlock, err := l.Ethconn.LatestBlock()
 			if err != nil {
 				log.Error("Unable to get latest block", "block", currentBlock, "err", err)
 				retry--
@@ -80,12 +80,12 @@ func (l *listener) pollBlocks() error {
 }
 
 // getDepositEventsForBlock looks for the deposit event in the latest block
-func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
+func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	log.Debug("Querying block for deposit events", "block", latestBlock)
 	query := buildQuery(params.DepositContractAddress, Deposited, latestBlock, latestBlock)
 
 	// querying for logs
-	logs, err := l.ethconn.client.FilterLogs(context.Background(), query)
+	logs, err := l.Ethconn.Client.FilterLogs(context.Background(), query)
 	if err != nil {
 		return fmt.Errorf("unable to Filter Logs: %w", err)
 	}
@@ -98,10 +98,10 @@ func (l *listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
 
 		// 2. send tx to substrate
-		// todo
-		if err := l.subconn.SubmitTx(substrate.BaseMethod, staker, value, periods); err != nil {
-			log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
-		}
+		log.Info("to send tx to substrate", "staker", staker, "value", value, "periods", periods)
+		//if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, staker, value, periods); err != nil {
+		//	log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
+		//}
 	}
 
 	return nil

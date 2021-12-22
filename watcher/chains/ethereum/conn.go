@@ -9,39 +9,40 @@ import (
 )
 
 type Connection struct {
-	endpoint string
-	http     bool
-	client   *ethclient.Client
-	stop     chan struct{}
+	URL    string
+	Http   bool
+	Client *ethclient.Client
+	Stop   chan struct{}
 }
 
-func NewConnection(endpoint string, http bool) *Connection {
+func NewConnection(endpoint string, http bool, stop chan struct{}) *Connection {
 	return &Connection{
-		endpoint: endpoint,
-		http:     http,
+		URL:  endpoint,
+		Http: http,
+		Stop: stop,
 	}
 }
 
 // Connect starts the ethereum WS connection
 func (c *Connection) Connect() error {
-	log.Info("Connecting to ethereum chain...", "url", c.endpoint)
+	log.Info("Connecting to ethereum chain...", "url", c.URL)
 	var rpcClient *rpc.Client
 	var err error
 	// Start http or ws client
-	if c.http {
-		rpcClient, err = rpc.DialHTTP(c.endpoint)
+	if c.Http {
+		rpcClient, err = rpc.DialHTTP(c.URL)
 	} else {
-		rpcClient, err = rpc.DialContext(context.Background(), c.endpoint)
+		rpcClient, err = rpc.DialContext(context.Background(), c.URL)
 	}
 	if err != nil {
 		return err
 	}
-	c.client = ethclient.NewClient(rpcClient)
+	c.Client = ethclient.NewClient(rpcClient)
 	return nil
 }
 
 func (c *Connection) LatestBlock() (*big.Int, error) {
-	header, err := c.client.HeaderByNumber(context.Background(), nil)
+	header, err := c.Client.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +51,8 @@ func (c *Connection) LatestBlock() (*big.Int, error) {
 
 // Close terminates the client connection and stops any running routines
 func (c *Connection) Close() {
-	if c.client != nil {
-		c.client.Close()
+	if c.Client != nil {
+		c.Client.Close()
 	}
-	close(c.stop)
+	close(c.Stop)
 }

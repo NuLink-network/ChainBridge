@@ -2,10 +2,11 @@ package ethereum
 
 import (
 	"context"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
-	"math/big"
 )
 
 type Connection struct {

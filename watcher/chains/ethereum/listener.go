@@ -81,7 +81,7 @@ func (l *Listener) PollBlocks() error {
 
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
-	log.Debug("Querying block for deposit events", "block", latestBlock)
+	log.Info("Querying block for deposit events", "block", latestBlock)
 	query := buildQuery(params.DepositContractAddress, Deposited, latestBlock, latestBlock)
 
 	// querying for logs
@@ -98,7 +98,7 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
 
 		// 2. send tx to substrate
-		log.Info("to send tx to substrate", "staker", staker, "value", value, "periods", periods)
+		log.Info("send tx to substrate", "staker", staker, "value", value, "periods", periods)
 		//if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, staker, value, periods); err != nil {
 		//	log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
 		//}

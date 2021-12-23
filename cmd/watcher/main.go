@@ -8,13 +8,14 @@ For configuration and CLI commands see the README: https://github.com/ChainSafe/
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/NuLink-network/watcher/watcher/chains/ethereum"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/ethereum/go-ethereum/log"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 //var app = cli.NewApp()
@@ -259,6 +260,12 @@ func InitializeChain() (*ethereum.Listener, error) {
 	}, nil
 }
 
+func init() {
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
+	glogger.Verbosity(log.LvlInfo)
+	log.Root().SetHandler(glogger)
+}
+
 func main() {
 	listener, err := InitializeChain()
 	if err != nil {
@@ -281,7 +288,7 @@ func main() {
 
 	select {
 	case <-sigs:
-		log.Info("received the exit signal, ready to exit......")
+		log.Info("received the exit signal, ready to exit...")
 	}
 
 	listener.Ethconn.Close()

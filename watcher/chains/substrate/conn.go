@@ -101,7 +101,7 @@ func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
 	if err != nil {
 		return fmt.Errorf("submit of extrinsic failed: %v", err)
 	}
-	log.Info("submit extrinsic succeeded", "hash", hash)
+	log.Info("submit extrinsic succeeded", "hash", hash.Hex())
 
 	return nil
 }

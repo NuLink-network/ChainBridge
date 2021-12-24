@@ -50,7 +50,7 @@ func TestConnection_RegisterWatcher(t *testing.T) {
 				API: api,
 				Key: &signature.TestKeyringPairAlice,
 			}
-			if err := c.RegisterWatcher(); (err != nil) != tt.wantErr {
+			if err := c.SubmitTx(RegisterWatcher); (err != nil) != tt.wantErr {
 				t.Errorf("RegisterWatcher() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -104,7 +104,7 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 				API: tt.fields.api,
 				Key: tt.fields.key,
 			}
-			if err := c.UpdateStakeInfo(tt.args.stakeInfos); (err != nil) != tt.wantErr {
+			if err := c.SubmitTx(UpdateStakeInfo, tt.args.stakeInfos); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateStakeInfo() error = %v, wantErr %v", err, tt.wantErr)
 			}
 

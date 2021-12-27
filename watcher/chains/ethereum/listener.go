@@ -112,11 +112,20 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 			for _, stakeInfo := range stakeInfoList {
 				if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
 					// todo
-					log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
+					log.Error("failed to send tx to substrate",
+						"coinbase", stakeInfo.Coinbase,
+						"workbase", stakeInfo.WorkBase,
+						"balance", stakeInfo.LockedBalance.Uint64(),
+						"err", err,
+					)
 					continue
 				}
 				// todo
-				log.Info("send tx to substrate", "staker", staker, "value", value, "periods", periods)
+				log.Info("send tx to substrate",
+					"coinbase", stakeInfo.Coinbase,
+					"workbase", stakeInfo.WorkBase,
+					"balance", stakeInfo.LockedBalance.Uint64(),
+				)
 			}
 			stakeInfoList = make([]*substrate.StakeInfo, 0)
 		}

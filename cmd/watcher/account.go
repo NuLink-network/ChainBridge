@@ -31,10 +31,10 @@ type dataHandler struct {
 func wrapHandler(hdl func(*cli.Context, *dataHandler) error) cli.ActionFunc {
 
 	return func(ctx *cli.Context) error {
-		err := startLogger(ctx)
-		if err != nil {
-			return err
-		}
+		//err := startLogger(ctx)
+		//if err != nil {
+		//	return err
+		//}
 
 		datadir, err := getDataDir(ctx)
 		if err != nil {

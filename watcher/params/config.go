@@ -14,6 +14,7 @@ var (
 
 var (
 	BlockRetryLimit = 5
+	EpochLength     = 10000
 )
 
 var BlockRetryInterval = time.Second * 5
@@ -24,5 +25,5 @@ var (
 )
 
 var (
-	DepositContractAddress = common.HexToAddress("")
+	DepositContractAddress = common.HexToAddress("0x52FC9c85678Fd16F63eC4a5a5E18674CD4C3F83c")
 )

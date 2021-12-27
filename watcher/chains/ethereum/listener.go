@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
@@ -14,6 +15,8 @@ import (
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/params"
 )
+
+var stakeInfoList = make([]*substrate.StakeInfo, 0)
 
 type Listener struct {
 	Ethconn *Connection
@@ -97,11 +100,26 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		value := ethcommon.BytesToHash(lg.Data[:32]).Big()
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
 
+		stakeInfoList = append(stakeInfoList, &substrate.StakeInfo{
+			Coinbase:      [32]byte{},
+			WorkBase:      [32]byte{},
+			IsWork:        true,
+			LockedBalance: types.NewU128(*value),
+			WorkCount:     0,
+		})
 		// 2. send tx to substrate
-		log.Info("send tx to substrate", "staker", staker, "value", value, "periods", periods)
-		//if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, staker, value, periods); err != nil {
-		//	log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
-		//}
+		if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
+			for _, stakeInfo := range stakeInfoList {
+				if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
+					// todo
+					log.Error("failed to send tx to substrate", "staker", staker, "value", value, "periods", periods, "err", err)
+					continue
+				}
+				// todo
+				log.Info("send tx to substrate", "staker", staker, "value", value, "periods", periods)
+			}
+			stakeInfoList = make([]*substrate.StakeInfo, 0)
+		}
 	}
 
 	return nil

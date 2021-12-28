@@ -173,3 +173,20 @@ func ReadStakeInfoFromFile(file string) error {
 	//}
 	return nil
 }
+
+func WriteStakeInfoToFile(file string) error {
+	if len(stakeInfoList) == 0 {
+		return nil
+	}
+	data, err := json.Marshal(stakeInfoList)
+	if err != nil {
+		log.Error("json marshal stake info list failed", "error", err)
+		return err
+	}
+	if err := ioutil.WriteFile(file, data, 0664); err != nil {
+		log.Error("write stake info list to file filed", "error", err)
+		return err
+	}
+	log.Info("write stake info list to file success")
+	return nil
+}

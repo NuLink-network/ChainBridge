@@ -2,8 +2,10 @@ package ethereum
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math/big"
 	"time"
 
@@ -96,9 +98,11 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, lg := range logs {
 		// 1. get data from Topics and Data
-		staker := lg.Topics[0]
+		staker := lg.Address
 		value := ethcommon.BytesToHash(lg.Data[:32]).Big()
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
+		// todo
+		_, _ = staker, periods
 
 		stakeInfoList = append(stakeInfoList, &substrate.StakeInfo{
 			Coinbase:      [32]byte{},
@@ -111,7 +115,6 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
 			for _, stakeInfo := range stakeInfoList {
 				if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
-					// todo
 					log.Error("failed to send tx to substrate",
 						"coinbase", stakeInfo.Coinbase,
 						"workbase", stakeInfo.WorkBase,
@@ -120,7 +123,6 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 					)
 					continue
 				}
-				// todo
 				log.Info("send tx to substrate",
 					"coinbase", stakeInfo.Coinbase,
 					"workbase", stakeInfo.WorkBase,
@@ -145,4 +147,29 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, e
 		},
 	}
 	return query
+}
+
+func ReadStakeInfoFromFile(file string) error {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Error("read stake info list from file filed", "error", err)
+		return err
+	}
+	var infos []*substrate.StakeInfo
+	if err := json.Unmarshal(data, &infos); err != nil {
+		log.Error("json unmarshal stake info list failed", "error", err)
+		return err
+	}
+	if len(infos) == 0 {
+		return nil
+	}
+
+	if stakeInfoList == nil {
+		stakeInfoList = make([]*substrate.StakeInfo, 0)
+	}
+	stakeInfoList = infos
+	//for _, info := range infos {
+	//	stakeInfoList = append(stakeInfoList, info)
+	//}
+	return nil
 }

@@ -10,245 +10,65 @@ package main
 import (
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
+
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/urfave/cli/v2"
 
 	"github.com/NuLink-network/watcher/watcher/chains/ethereum"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/NuLink-network/watcher/watcher/config"
 )
 
-//var app = cli.NewApp()
-//
-//var cliFlags = []cli.Flag{
-//	config.ConfigFileFlag,
-//	config.VerbosityFlag,
-//	config.KeystorePathFlag,
-//	config.BlockstorePathFlag,
-//	config.FreshStartFlag,
-//	config.LatestBlockFlag,
-//	config.MetricsFlag,
-//	config.MetricsPort,
-//}
-//
-//var generateFlags = []cli.Flag{
-//	config.PasswordFlag,
-//	config.Sr25519Flag,
-//	config.Secp256k1Flag,
-//	config.SubkeyNetworkFlag,
-//}
-//
-//var devFlags = []cli.Flag{
-//	config.TestKeyFlag,
-//}
-//
-//var importFlags = []cli.Flag{
-//	config.EthereumImportFlag,
-//	config.PrivateKeyFlag,
-//	config.Sr25519Flag,
-//	config.Secp256k1Flag,
-//	config.PasswordFlag,
-//	config.SubkeyNetworkFlag,
-//}
-//
-//var accountCommand = cli.Command{
-//	Name:  "accounts",
-//	Usage: "manage bridge keystore",
-//	Description: "The accounts command is used to manage the bridge keystore.\n" +
-//		"\tTo generate a new account (key type generated is determined on the flag passed in): watcher accounts generate\n" +
-//		"\tTo import a keystore file: watcher accounts import path/to/file\n" +
-//		"\tTo import a geth keystore file: watcher accounts import --ethereum path/to/file\n" +
-//		"\tTo import a private key file: watcher accounts import --privateKey private_key\n" +
-//		"\tTo list keys: watcher accounts list",
-//	Subcommands: []*cli.Command{
-//		{
-//			Action: wrapHandler(handleGenerateCmd),
-//			Name:   "generate",
-//			Usage:  "generate bridge keystore, key type determined by flag",
-//			Flags:  generateFlags,
-//			Description: "The generate subcommand is used to generate the bridge keystore.\n" +
-//				"\tIf no options are specified, a secp256k1 key will be made.",
-//		},
-//		{
-//			Action: wrapHandler(handleImportCmd),
-//			Name:   "import",
-//			Usage:  "import bridge keystore",
-//			Flags:  importFlags,
-//			Description: "The import subcommand is used to import a keystore for the bridge.\n" +
-//				"\tA path to the keystore must be provided\n" +
-//				"\tUse --ethereum to import an ethereum keystore from external sources such as geth\n" +
-//				"\tUse --privateKey to create a keystore from a provided private key.",
-//		},
-//		{
-//			Action:      wrapHandler(handleListCmd),
-//			Name:        "list",
-//			Usage:       "list bridge keystore",
-//			Description: "The list subcommand is used to list all of the bridge keystores.\n",
-//		},
-//	},
-//}
-//
-//var (
-//	Version = "0.0.1"
-//)
-//
-//// init initializes CLI
-//func init() {
-//	app.Action = run
-//	app.Copyright = "Copyright 2019 Watcher Systems Authors"
-//	app.Name = "watcher"
-//	app.Usage = "Watcher"
-//	app.Authors = []*cli.Author{{Name: "Watcher Systems 2019"}}
-//	app.Version = Version
-//	app.EnableBashCompletion = true
-//	app.Commands = []*cli.Command{
-//		&accountCommand,
-//	}
-//
-//	app.Flags = append(app.Flags, cliFlags...)
-//	app.Flags = append(app.Flags, devFlags...)
-//}
-//
-//func main() {
-//	if err := app.Run(os.Args); err != nil {
-//		log.Error(err.Error())
-//		os.Exit(1)
-//	}
-//}
-//
-//func startLogger(ctx *cli.Context) error {
-//	logger := log.Root()
-//	handler := logger.GetHandler()
-//	var lvl log.Lvl
-//
-//	if lvlToInt, err := strconv.Atoi(ctx.String(config.VerbosityFlag.Name)); err == nil {
-//		lvl = log.Lvl(lvlToInt)
-//	} else if lvl, err = log.LvlFromString(ctx.String(config.VerbosityFlag.Name)); err != nil {
-//		return err
-//	}
-//	log.Root().SetHandler(log.LvlFilterHandler(lvl, handler))
-//
-//	return nil
-//}
-//
-//func run(ctx *cli.Context) error {
-//	err := startLogger(ctx)
-//	if err != nil {
-//		return err
-//	}
-//
-//	log.Info("Starting ChainBridge...")
-//
-//	cfg, err := config.GetConfig(ctx)
-//	if err != nil {
-//		return err
-//	}
-//
-//	log.Debug("Config on initialization...", "config", *cfg)
-//
-//	// Check for test key flag
-//	var ks string
-//	var insecure bool
-//	if key := ctx.String(config.TestKeyFlag.Name); key != "" {
-//		ks = key
-//		insecure = true
-//	} else {
-//		ks = cfg.KeystorePath
-//	}
-//
-//	// Used to signal core shutdown due to fatal error
-//	sysErr := make(chan error)
-//	c := core.NewCore(sysErr)
-//
-//	for _, chain := range cfg.Chains {
-//		chainId, errr := strconv.Atoi(chain.Id)
-//		if errr != nil {
-//			return errr
-//		}
-//		chainConfig := &core.ChainConfig{
-//			Name:           chain.Name,
-//			Id:             msg.ChainId(chainId),
-//			URL:       chain.URL,
-//			From:           chain.From,
-//			KeystorePath:   ks,
-//			Insecure:       insecure,
-//			BlockstorePath: ctx.String(config.BlockstorePathFlag.Name),
-//			FreshStart:     ctx.Bool(config.FreshStartFlag.Name),
-//			LatestBlock:    ctx.Bool(config.LatestBlockFlag.Name),
-//			Opts:           chain.Opts,
-//		}
-//		var newChain core.Chain
-//		var m *metrics.ChainMetrics
-//
-//		logger := log.Root().New("chain", chainConfig.Name)
-//
-//		if ctx.Bool(config.MetricsFlag.Name) {
-//			m = metrics.NewChainMetrics(chain.Name)
-//		}
-//
-//		if chain.Type == "ethereum" {
-//			newChain, err = ethereum.InitializeChain(chainConfig, logger, sysErr, m)
-//		} else if chain.Type == "substrate" {
-//			newChain, err = substrate.InitializeChain(chainConfig, logger, sysErr, m)
-//		} else {
-//			return errors.New("unrecognized Chain Type")
-//		}
-//
-//		if err != nil {
-//			return err
-//		}
-//		c.AddChain(newChain)
-//
-//	}
-//
-//	// Start prometheus and health server
-//	if ctx.Bool(config.MetricsFlag.Name) {
-//		port := ctx.Int(config.MetricsPort.Name)
-//		blockTimeoutStr := os.Getenv(config.HealthBlockTimeout)
-//		blockTimeout := config.DefaultBlockTimeout
-//		if blockTimeoutStr != "" {
-//			blockTimeout, err = strconv.ParseInt(blockTimeoutStr, 10, 0)
-//			if err != nil {
-//				return err
-//			}
-//		}
-//		h := health.NewHealthServer(port, c.Registry, int(blockTimeout))
-//
-//		go func() {
-//			http.Handle("/metrics", promhttp.Handler())
-//			http.HandleFunc("/health", h.HealthStatus)
-//			err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-//			if errors.Is(err, http.ErrServerClosed) {
-//				log.Info("Health status server is shutting down", err)
-//			} else {
-//				log.Error("Error serving metrics", "err", err)
-//			}
-//		}()
-//	}
-//
-//	c.Start()
-//
-//	return nil
-//}
+var (
+	app     = cli.NewApp()
+	Version = "0.1.0"
+)
 
-var ethereumConnection = ethereum.Connection{
-	URL:  "http://127.0.0.1:8545",
-	Http: true,
+var cliFlags = []cli.Flag{
+	config.VerbosityFlag,
+	config.ConfigFileFlag,
+	config.StakeInfoFileFlag,
 }
 
-var substrateConnection = substrate.Connection{
-	URL: "ws://127.0.0.1:9944",
-	Key: &signature.TestKeyringPairAlice,
+func init() {
+	app.Action = run
+	app.Version = Version
+	app.Copyright = "Copyright 2021 Watcher Systems Authors"
+	app.Name = "watcher"
+
+	app.Flags = append(app.Flags, cliFlags...)
+
+	app.Before = func(ctx *cli.Context) error {
+		return setup(ctx)
+	}
+	app.After = func(ctx *cli.Context) error {
+		return exit(ctx)
+	}
 }
 
-func InitializeChain() (*ethereum.Listener, error) {
+func main() {
+	if err := app.Run(os.Args); err != nil {
+		log.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 	stop := make(chan struct{}, 1)
-	ethconn := ethereum.NewConnection(ethereumConnection.URL, ethereumConnection.Http, stop)
+	ethconn := ethereum.NewConnection(cfg.EthereumConfig.URL, cfg.EthereumConfig.Http, stop)
 	if err := ethconn.Connect(); err != nil {
 		return nil, err
 	}
 
-	subconn := substrate.NewConnection(substrateConnection.URL, substrateConnection.Key, stop)
+	kp, err := signature.KeyringPairFromSecret(cfg.SubstrateConfig.Seed, cfg.SubstrateConfig.Network)
+	if err != nil {
+		return nil, err
+	}
+
+	subconn := substrate.NewConnection(cfg.SubstrateConfig.URL, &kp, stop)
 	if err := subconn.Connect(); err != nil {
 		return nil, err
 	}
@@ -260,20 +80,24 @@ func InitializeChain() (*ethereum.Listener, error) {
 	}, nil
 }
 
-func init() {
-	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
-	glogger.Verbosity(log.LvlInfo)
-	log.Root().SetHandler(glogger)
-}
+var listener *ethereum.Listener
 
-func main() {
-	listener, err := InitializeChain()
+func run(ctx *cli.Context) error {
+	log.Info("run ...")
+	cfg, err := config.GetConfig(ctx)
 	if err != nil {
-		log.Crit("failed to initialize chain", "error", err)
+		return err
+	}
+
+	listener, err = InitializeChain(cfg)
+	if err != nil {
+		log.Error("failed to initialize chain", "error", err)
+		return err
 	}
 
 	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {
-		log.Crit("failed to register watcher", "error", err)
+		log.Error("failed to register watcher", "error", err)
+		return err
 	}
 
 	go func() {
@@ -290,6 +114,35 @@ func main() {
 	case <-sigs:
 		log.Info("received the exit signal, ready to exit...")
 	}
+	//listener.Ethconn.Close()
+	return nil
+}
 
+func setup(ctx *cli.Context) error {
+	if err := startLogger(ctx); err != nil {
+		return err
+	}
+	log.Info("setup watcher...")
+	return ethereum.ReadStakeInfoFromFile(ctx.String(config.StakeInfoFileFlag.Name))
+}
+
+func exit(ctx *cli.Context) error {
+	log.Info("exit watcher...")
 	listener.Ethconn.Close()
+	return ethereum.WriteStakeInfoToFile(ctx.String(config.StakeInfoFileFlag.Name))
+}
+
+func startLogger(ctx *cli.Context) error {
+	var lvl log.Lvl
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
+
+	if lvlToInt, err := strconv.Atoi(ctx.String(config.VerbosityFlag.Name)); err == nil {
+		lvl = log.Lvl(lvlToInt)
+	} else if lvl, err = log.LvlFromString(ctx.String(config.VerbosityFlag.Name)); err != nil {
+		return err
+	}
+	glogger.Verbosity(lvl)
+	log.Root().SetHandler(glogger)
+
+	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
@@ -19,11 +20,36 @@ func DefaultConfigFile() string {
 	return DefaultDir() + configFile
 }
 
+func IsEmpty(s string) bool {
+	return len(strings.TrimSpace(s)) > 0
+}
+
 type Config struct {
+	EthereumConfig  EthereumConfig  `json:"ethereumConfig"`
+	SubstrateConfig SubstrateConfig `json:"substrateConfig"`
+}
+
+type EthereumConfig struct {
+	URL  string `json:"url"`
+	Http bool   `json:"http"`
+}
+
+type SubstrateConfig struct {
+	URL     string `json:"url"`
+	Seed    string `json:"seed"`
+	Network uint8  `json:"network"`
 }
 
 func (c *Config) validate() error {
-	// todo
+	if IsEmpty(c.EthereumConfig.URL) {
+		return fmt.Errorf("required field URL for ethereum")
+	}
+	if IsEmpty(c.SubstrateConfig.URL) {
+		return fmt.Errorf("required field URL for substrate")
+	}
+	if IsEmpty(c.SubstrateConfig.Seed) {
+		return fmt.Errorf("required field Seed for substrate")
+	}
 	return nil
 }
 
@@ -38,9 +64,6 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 		log.Warn("err loading json file", "err", err.Error())
 		return &cfg, err
 	}
-	//if ksPath := ctx.String(KeystorePathFlag.Name); ksPath != "" {
-	//	fig.KeystorePath = ksPath
-	//}
 
 	log.Debug("Loaded config", "path", path)
 	err = cfg.validate()

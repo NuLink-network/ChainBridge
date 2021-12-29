@@ -21,6 +21,17 @@ func init() {
 	}
 }
 
+func getKeyringPair() *signature.KeyringPair {
+	//phrase := " indoor height cinnamon parent kite oxygen dolphin output pet bitter joke grain"
+	seed := "0xe1d5a01954b8320d8c5ceb88199487b5a3821bbc4b520286360a71a946f22c33"
+
+	kp, err := signature.KeyringPairFromSecret(seed, 1)
+	if err != nil {
+		panic(err)
+	}
+	return &kp
+}
+
 func TestConnection_RegisterWatcher(t *testing.T) {
 	type fields struct {
 		api  *gsrpc.SubstrateAPI
@@ -62,6 +73,7 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	address := common.HexToAddress("0xa7f6c9a5052a08a14ff0e3349094b6efbc591ea4")
 
 	type fields struct {
 		api  *gsrpc.SubstrateAPI
@@ -88,7 +100,7 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 				stakeInfos: []*StakeInfo{
 					{
 						Coinbase:      bob.AsAccountID,
-						WorkBase:      common.BigToHash(big.NewInt(123)),
+						WorkBase:      address[:],
 						IsWork:        true,
 						LockedBalance: types.NewU128(*big.NewInt(123456)),
 						WorkCount:     10,
@@ -110,4 +122,20 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 
 		})
 	}
+}
+
+func TestGetAddressFromAccountID(t *testing.T) {
+	phrase := " indoor height cinnamon parent kite oxygen dolphin output pet bitter joke grain"
+	seed := "0xe1d5a01954b8320d8c5ceb88199487b5a3821bbc4b520286360a71a946f22c33"
+	kp1, err := signature.KeyringPairFromSecret(phrase, 2)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp1: %+v\n", kp1)
+
+	kp2, err := signature.KeyringPairFromSecret(seed, 1)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp2: %+v\n", kp2)
 }

@@ -6,6 +6,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,7 +22,7 @@ func DefaultConfigFile() string {
 }
 
 func IsEmpty(s string) bool {
-	return len(strings.TrimSpace(s)) > 0
+	return len(strings.TrimSpace(s)) <= 0
 }
 
 type Config struct {
@@ -30,8 +31,10 @@ type Config struct {
 }
 
 type EthereumConfig struct {
-	URL  string `json:"url"`
-	Http bool   `json:"http"`
+	StartBlock         *big.Int `json:"startBlock"`
+	BlockConfirmations *big.Int `json:"blockConfirmations"`
+	URL                string   `json:"url"`
+	Http               bool     `json:"http"`
 }
 
 type SubstrateConfig struct {
@@ -61,7 +64,7 @@ func GetConfig(ctx *cli.Context) (*Config, error) {
 	}
 	err := loadConfig(path, &cfg)
 	if err != nil {
-		log.Warn("err loading json file", "err", err.Error())
+		log.Warn("failed to loading json file", "err", err.Error())
 		return &cfg, err
 	}
 

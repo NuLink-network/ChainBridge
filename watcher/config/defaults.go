@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-const defaultStakeInfoFile = "/stake_info.json"
+const defaultStakeInfoFile = "/stake_info.rlp"
 
 func DefaultStakeInfoFile() string {
 	return DefaultDir() + defaultStakeInfoFile

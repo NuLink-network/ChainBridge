@@ -41,12 +41,12 @@ func init() {
 
 	app.Flags = append(app.Flags, cliFlags...)
 
-	app.Before = func(ctx *cli.Context) error {
-		return setup(ctx)
-	}
-	app.After = func(ctx *cli.Context) error {
-		return exit(ctx)
-	}
+	//app.Before = func(ctx *cli.Context) error {
+	//	return setup(ctx)
+	//}
+	//app.After = func(ctx *cli.Context) error {
+	//	return exit(ctx)
+	//}
 }
 
 func main() {
@@ -74,6 +74,7 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 	}
 
 	return &ethereum.Listener{
+		Config:  cfg.EthereumConfig,
 		Ethconn: ethconn,
 		Subconn: subconn,
 		Stop:    stop,
@@ -83,7 +84,10 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 var listener *ethereum.Listener
 
 func run(ctx *cli.Context) error {
-	log.Info("run ...")
+	if err := setup(ctx); err != nil {
+		return err
+	}
+
 	cfg, err := config.GetConfig(ctx)
 	if err != nil {
 		return err
@@ -115,6 +119,7 @@ func run(ctx *cli.Context) error {
 		log.Info("received the exit signal, ready to exit...")
 	}
 	//listener.Ethconn.Close()
+	_ = exit(ctx)
 	return nil
 }
 

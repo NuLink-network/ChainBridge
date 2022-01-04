@@ -69,6 +69,13 @@ func TestConnection_RegisterWatcher(t *testing.T) {
 }
 
 func TestConnection_UpdateStakeInfo(t *testing.T) {
+	//type StakeInfo struct {
+	//	Coinbase      [32]byte
+	//	WorkBase      []byte
+	//	IsWork        bool
+	//	LockedBalance *big.Int
+	//	WorkCount     uint32
+	//}
 	bob, err := types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
 	if err != nil {
 		panic(err)
@@ -125,17 +132,35 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 }
 
 func TestGetAddressFromAccountID(t *testing.T) {
-	phrase := " indoor height cinnamon parent kite oxygen dolphin output pet bitter joke grain"
+	phrase := "indoor height cinnamon parent kite oxygen dolphin output pet bitter joke grain"
 	seed := "0xe1d5a01954b8320d8c5ceb88199487b5a3821bbc4b520286360a71a946f22c33"
-	kp1, err := signature.KeyringPairFromSecret(phrase, 2)
+	kp, err := signature.KeyringPairFromSecret(phrase, 0)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp: %+v\n", kp)
+
+	kp0, err := signature.KeyringPairFromSecret(seed, 0)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp0: %+v\n", kp0)
+
+	kp1, err := signature.KeyringPairFromSecret(seed, 1)
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("kp1: %+v\n", kp1)
 
-	kp2, err := signature.KeyringPairFromSecret(seed, 1)
+	kp2, err := signature.KeyringPairFromSecret(seed, 2)
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("kp2: %+v\n", kp2)
+
+	kp3, err := signature.KeyringPairFromSecret(seed, 3)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp3: %+v\n", kp3)
 }

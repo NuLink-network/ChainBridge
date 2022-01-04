@@ -2,25 +2,30 @@ package ethereum
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	eth "github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
+	"github.com/NuLink-network/watcher/watcher/config"
 	"github.com/NuLink-network/watcher/watcher/params"
 )
 
 var stakeInfoList = make([]*substrate.StakeInfo, 0)
+var bob, _ = types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
 
 type Listener struct {
+	Config  config.EthereumConfig
 	Ethconn *Connection
 	Subconn *substrate.Connection
 	Stop    chan struct{}
@@ -31,7 +36,7 @@ type Listener struct {
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *Listener) PollBlocks() error {
 	var (
-		currentBlock = params.StartBlock
+		currentBlock = l.Config.StartBlock
 		retry        = params.BlockRetryLimit
 	)
 
@@ -45,7 +50,12 @@ func (l *Listener) PollBlocks() error {
 			// No more retries, goto next block
 			if retry == 0 {
 				log.Error("Polling failed, retries exceeded")
+				l.Stop <- struct{}{}
 				return nil
+				// Goto next block and reset retry counter
+				//currentBlock.Add(currentBlock, big.NewInt(1))
+				//retry = params.BlockRetryLimit
+				//continue
 			}
 
 			latestBlock, err := l.Ethconn.LatestBlock()
@@ -56,14 +66,8 @@ func (l *Listener) PollBlocks() error {
 				continue
 			}
 
-			// Sleep if currentBlock is greater than latestBlock; currentBlock > latestBlock
-			if currentBlock.Cmp(latestBlock) == 1 {
-				time.Sleep(params.BlockRetryInterval)
-				continue
-			}
-
 			// Sleep if the difference is less than BlockConfirmations; (latestBlock - currentBlock) < BlockConfirmations
-			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(params.BlockConfirmations) == -1 {
+			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(l.Config.BlockConfirmations) == -1 {
 				log.Debug("Block not ready, will retry", "target", currentBlock, "latest", latestBlock)
 				time.Sleep(params.BlockRetryInterval)
 				continue
@@ -98,39 +102,37 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, lg := range logs {
 		// 1. get data from Topics and Data
-		staker := lg.Address
+		staker := lg.Topics[0]
 		value := ethcommon.BytesToHash(lg.Data[:32]).Big()
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
-		// todo
-		_, _ = staker, periods
 
 		stakeInfoList = append(stakeInfoList, &substrate.StakeInfo{
-			Coinbase:      [32]byte{},
-			WorkBase:      [32]byte{},
+			Coinbase:      bob.AsAccountID,
+			WorkBase:      staker[:],
 			IsWork:        true,
 			LockedBalance: types.NewU128(*value),
 			WorkCount:     0,
 		})
-		// 2. send tx to substrate
-		if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
-			for _, stakeInfo := range stakeInfoList {
-				if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
-					log.Error("failed to send tx to substrate",
-						"coinbase", stakeInfo.Coinbase,
-						"workbase", stakeInfo.WorkBase,
-						"balance", stakeInfo.LockedBalance.Uint64(),
-						"err", err,
-					)
-					continue
-				}
-				log.Info("send tx to substrate",
-					"coinbase", stakeInfo.Coinbase,
-					"workbase", stakeInfo.WorkBase,
+		log.Info("find deposit event", "staker", staker, "value", value, "periods", periods)
+	}
+	if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
+		for _, stakeInfo := range stakeInfoList {
+			if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
+				log.Error("failed to send tx to substrate",
+					"coinbase", ethcommon.BytesToAddress(stakeInfo.Coinbase[:]),
+					"workbase", ethcommon.BytesToAddress(stakeInfo.WorkBase[:]),
 					"balance", stakeInfo.LockedBalance.Uint64(),
+					"err", err,
 				)
+				continue
 			}
-			stakeInfoList = make([]*substrate.StakeInfo, 0)
+			log.Info("send tx to substrate",
+				"coinbase", ethcommon.BytesToAddress(stakeInfo.Coinbase[:]),
+				"workbase", ethcommon.BytesToAddress(stakeInfo.WorkBase[:]),
+				"balance", stakeInfo.LockedBalance.Uint64(),
+			)
 		}
+		stakeInfoList = make([]*substrate.StakeInfo, 0, 1000)
 	}
 
 	return nil
@@ -149,15 +151,40 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, e
 	return query
 }
 
+func fileExists(fileName string) (bool, error) {
+	_, err := os.Stat(fileName)
+	if os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func ReadStakeInfoFromFile(file string) error {
+	// If it exists, load and return
+	exists, err := fileExists(file)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		log.Warn("stake info file does not exist")
+		return nil
+	}
+
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Error("read stake info list from file filed", "error", err)
 		return err
 	}
+	if len(data) == 0 {
+		log.Warn("stake info file is empty")
+		return nil
+	}
+
 	var infos []*substrate.StakeInfo
-	if err := json.Unmarshal(data, &infos); err != nil {
-		log.Error("json unmarshal stake info list failed", "error", err)
+	if err := rlp.DecodeBytes(data, &infos); err != nil {
+		log.Error("rlp decode stake info list failed", "error", err)
 		return err
 	}
 	if len(infos) == 0 {
@@ -168,9 +195,7 @@ func ReadStakeInfoFromFile(file string) error {
 		stakeInfoList = make([]*substrate.StakeInfo, 0)
 	}
 	stakeInfoList = infos
-	//for _, info := range infos {
-	//	stakeInfoList = append(stakeInfoList, info)
-	//}
+
 	return nil
 }
 
@@ -178,7 +203,16 @@ func WriteStakeInfoToFile(file string) error {
 	if len(stakeInfoList) == 0 {
 		return nil
 	}
-	data, err := json.Marshal(stakeInfoList)
+	// Create dir if it does not exist
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		dir, _ := filepath.Split(file)
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	data, err := rlp.EncodeToBytes(stakeInfoList)
 	if err != nil {
 		log.Error("json marshal stake info list failed", "error", err)
 		return err
@@ -187,6 +221,6 @@ func WriteStakeInfoToFile(file string) error {
 		log.Error("write stake info list to file filed", "error", err)
 		return err
 	}
-	log.Info("write stake info list to file success")
+	log.Info("write stake info list to file success", "count", len(stakeInfoList))
 	return nil
 }

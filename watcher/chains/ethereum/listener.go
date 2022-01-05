@@ -22,7 +22,6 @@ import (
 )
 
 var stakeInfoList = make([]*substrate.StakeInfo, 0)
-var bob, _ = types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
 
 type Listener struct {
 	Config  config.EthereumConfig
@@ -102,12 +101,12 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	// read through the log events and handle their deposit event if handler is recognized
 	for _, lg := range logs {
 		// 1. get data from Topics and Data
-		staker := lg.Topics[0]
+		staker := lg.Topics[1]
 		value := ethcommon.BytesToHash(lg.Data[:32]).Big()
 		periods := ethcommon.BytesToHash(lg.Data[32:]).Big()
 
 		stakeInfoList = append(stakeInfoList, &substrate.StakeInfo{
-			Coinbase:      bob.AsAccountID,
+			Coinbase:      types.NewAccountID(staker[:]),
 			WorkBase:      staker[:],
 			IsWork:        true,
 			LockedBalance: types.NewU128(*value),
@@ -116,22 +115,12 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		log.Info("find deposit event", "staker", staker, "value", value, "periods", periods)
 	}
 	if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
-		for _, stakeInfo := range stakeInfoList {
-			if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfo); err != nil {
-				log.Error("failed to send tx to substrate",
-					"coinbase", ethcommon.BytesToAddress(stakeInfo.Coinbase[:]),
-					"workbase", ethcommon.BytesToAddress(stakeInfo.WorkBase[:]),
-					"balance", stakeInfo.LockedBalance.Uint64(),
-					"err", err,
-				)
-				continue
-			}
-			log.Info("send tx to substrate",
-				"coinbase", ethcommon.BytesToAddress(stakeInfo.Coinbase[:]),
-				"workbase", ethcommon.BytesToAddress(stakeInfo.WorkBase[:]),
-				"balance", stakeInfo.LockedBalance.Uint64(),
-			)
+		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfoList); err != nil {
+			log.Error("failed to update stake info to nulink", "count", len(stakeInfoList), "error", err)
+		} else {
+			log.Error("succeeded to update stake info to nulink", "count", len(stakeInfoList))
 		}
+
 		stakeInfoList = make([]*substrate.StakeInfo, 0, 1000)
 	}
 

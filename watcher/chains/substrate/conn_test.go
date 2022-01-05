@@ -76,11 +76,13 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 	//	LockedBalance *big.Int
 	//	WorkCount     uint32
 	//}
-	bob, err := types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
-	if err != nil {
-		panic(err)
-	}
-	address := common.HexToAddress("0xa7f6c9a5052a08a14ff0e3349094b6efbc591ea4")
+	//bob, err := types.NewAddressFromHexAccountID("0x8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//accountID := [32]byte{142, 175, 4, 21, 22, 135, 115, 99, 38, 201, 254, 161, 126, 37, 252, 82, 135, 97, 54, 147, 201, 18, 144, 156, 178, 38, 170, 71, 148, 242, 106, 72}
+	address1 := common.HexToAddress("0xa7f6c9a5052a08a14ff0e3349094b6efbc591ea4")
+	address2 := common.HexToAddress("0x00192fb10df37c9fb26829eb2cc623cd1bf599e8")
 
 	type fields struct {
 		api  *gsrpc.SubstrateAPI
@@ -106,10 +108,17 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 			args: args{
 				stakeInfos: []*StakeInfo{
 					{
-						Coinbase:      bob.AsAccountID,
-						WorkBase:      address[:],
+						Coinbase:      types.NewAccountID([]byte(address1.Hex())),
+						WorkBase:      address1[:],
 						IsWork:        true,
 						LockedBalance: types.NewU128(*big.NewInt(123456)),
+						WorkCount:     10,
+					},
+					{
+						Coinbase:      types.NewAccountID([]byte(address2.Hex())),
+						WorkBase:      address2[:],
+						IsWork:        true,
+						LockedBalance: types.NewU128(*big.NewInt(6600)),
 						WorkCount:     10,
 					},
 				},
@@ -163,4 +172,14 @@ func TestGetAddressFromAccountID(t *testing.T) {
 		t.Error(err)
 	}
 	t.Logf("kp3: %+v\n", kp3)
+}
+
+func TestNewAccountFromHexAddress(t *testing.T) {
+	addr1 := "0x4f51607f575F13bc661B44499b99A7EA3e0cEA8A"
+	addr2 := "0xd55A80F033F7d6AbCac39A936ba2cC7Cb38ccb87"
+
+	accountID1 := types.NewAccountID([]byte(addr1))
+	accountID2 := types.NewAccountID([]byte(addr2))
+	t.Log("account id 1: ", accountID1)
+	t.Log("account id 2: ", accountID2)
 }

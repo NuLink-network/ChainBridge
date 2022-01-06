@@ -31,6 +31,7 @@ var cliFlags = []cli.Flag{
 	config.VerbosityFlag,
 	config.ConfigFileFlag,
 	config.StakeInfoFileFlag,
+	config.BlockStoreFileFlag,
 }
 
 func init() {
@@ -93,11 +94,21 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
+	lp := ctx.String(config.BlockStoreFileFlag.Name)
+	number, err := ethereum.ReadLatestBlock(lp)
+	if err != nil {
+		return err
+	}
+	if number.Cmp(cfg.EthereumConfig.StartBlock) == 1 {
+		cfg.EthereumConfig.StartBlock = number
+	}
+
 	listener, err = InitializeChain(cfg)
 	if err != nil {
 		log.Error("failed to initialize chain", "error", err)
 		return err
 	}
+	listener.LatestBlockPath = lp
 
 	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {
 		log.Error("failed to register watcher", "error", err)
@@ -118,7 +129,7 @@ func run(ctx *cli.Context) error {
 	case <-sigs:
 		log.Info("received the exit signal, ready to exit...")
 	}
-	//listener.Ethconn.Close()
+
 	_ = exit(ctx)
 	return nil
 }

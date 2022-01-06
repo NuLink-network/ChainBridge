@@ -7,10 +7,17 @@ import (
 	"runtime"
 )
 
-const defaultStakeInfoFile = "/stake_info.rlp"
+const (
+	defaultStakeInfoFile   = "/stake_info.rlp"
+	defaultLatestBlockFile = "/latest_block"
+)
 
 func DefaultStakeInfoFile() string {
 	return DefaultDir() + defaultStakeInfoFile
+}
+
+func DefaultLatestBlockFile() string {
+	return DefaultDir() + defaultLatestBlockFile
 }
 
 func DefaultDir() string {

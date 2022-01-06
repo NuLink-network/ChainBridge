@@ -24,10 +24,11 @@ import (
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
-	Config  config.EthereumConfig
-	Ethconn *Connection
-	Subconn *substrate.Connection
-	Stop    chan struct{}
+	Config          config.EthereumConfig
+	Ethconn         *Connection
+	Subconn         *substrate.Connection
+	LatestBlockPath string
+	Stop            chan struct{}
 }
 
 // PollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
@@ -79,6 +80,9 @@ func (l *Listener) PollBlocks() error {
 				retry--
 				continue
 			}
+			if err := WriteLatestBlock(l.LatestBlockPath, latestBlock); err != nil {
+				log.Error("Failed to write latest block", "block", latestBlock, "err", err)
+			}
 
 			// Goto next block and reset retry counter
 			currentBlock.Add(currentBlock, big.NewInt(1))
@@ -90,7 +94,7 @@ func (l *Listener) PollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	log.Info("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(params.DepositContractAddress, Deposited, latestBlock, latestBlock)
+	query := buildQuery(ethcommon.HexToAddress(l.Config.DepositContractAddr), Deposited, latestBlock, latestBlock)
 
 	// querying for logs
 	logs, err := l.Ethconn.Client.FilterLogs(context.Background(), query)
@@ -180,9 +184,6 @@ func ReadStakeInfoFromFile(file string) error {
 		log.Error("rlp decode stake info list failed", "error", err)
 		return err
 	}
-	if len(infos) == 0 {
-		return nil
-	}
 
 	if stakeInfoList == nil {
 		stakeInfoList = make([]*substrate.StakeInfo, 0)
@@ -193,9 +194,6 @@ func ReadStakeInfoFromFile(file string) error {
 }
 
 func WriteStakeInfoToFile(file string) error {
-	if len(stakeInfoList) == 0 {
-		return nil
-	}
 	// Create dir if it does not exist
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		dir, _ := filepath.Split(file)
@@ -216,4 +214,40 @@ func WriteStakeInfoToFile(file string) error {
 	}
 	log.Info("write stake info list to file success", "count", len(stakeInfoList))
 	return nil
+}
+
+func WriteLatestBlock(file string, number *big.Int) error {
+	// Create dir if it does not exist
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		dir, _ := filepath.Split(file)
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Write bytes to file
+	data := []byte(number.String())
+	err := ioutil.WriteFile(file, data, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func ReadLatestBlock(file string) (*big.Int, error) {
+	// If it exists, load and return
+	exists, err := fileExists(file)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		data, err := ioutil.ReadFile(file)
+		if err != nil {
+			return nil, err
+		}
+		block, _ := new(big.Int).SetString(string(data), 10)
+		return block, nil
+	}
+	// Otherwise just return 0
+	return big.NewInt(0), nil
 }

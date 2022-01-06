@@ -71,6 +71,7 @@ func TestConnection_RegisterWatcher(t *testing.T) {
 }
 
 func TestConnection_UpdateStakeInfo(t *testing.T) {
+	Connect()
 	//type StakeInfo struct {
 	//	Coinbase      [32]byte
 	//	WorkBase      []byte

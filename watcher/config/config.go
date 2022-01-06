@@ -31,10 +31,11 @@ type Config struct {
 }
 
 type EthereumConfig struct {
-	StartBlock         *big.Int `json:"startBlock"`
-	BlockConfirmations *big.Int `json:"blockConfirmations"`
-	URL                string   `json:"url"`
-	Http               bool     `json:"http"`
+	URL                 string   `json:"url"`
+	Http                bool     `json:"http"`
+	DepositContractAddr string   `json:"depositContractAddr"`
+	StartBlock          *big.Int `json:"startBlock"`
+	BlockConfirmations  *big.Int `json:"blockConfirmations"`
 }
 
 type SubstrateConfig struct {
@@ -46,6 +47,9 @@ type SubstrateConfig struct {
 func (c *Config) validate() error {
 	if IsEmpty(c.EthereumConfig.URL) {
 		return fmt.Errorf("required field URL for ethereum")
+	}
+	if IsEmpty(c.EthereumConfig.DepositContractAddr) {
+		return fmt.Errorf("required field DepositContractAddr for ethereum")
 	}
 	if IsEmpty(c.SubstrateConfig.URL) {
 		return fmt.Errorf("required field URL for substrate")

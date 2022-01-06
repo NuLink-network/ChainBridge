@@ -126,6 +126,8 @@ func run(ctx *cli.Context) error {
 	signal.Notify(sigs, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	select {
+	case <-listener.Stop:
+		log.Info("listener stop...")
 	case <-sigs:
 		log.Info("received the exit signal, ready to exit...")
 	}

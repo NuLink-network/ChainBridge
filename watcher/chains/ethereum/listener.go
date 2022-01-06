@@ -21,7 +21,7 @@ import (
 	"github.com/NuLink-network/watcher/watcher/params"
 )
 
-var stakeInfoList = make([]*substrate.StakeInfo, 0)
+var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
 	Config  config.EthereumConfig
@@ -115,7 +115,11 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		log.Info("find deposit event", "staker", staker, "value", value, "periods", periods)
 	}
 	if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
-		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfoList); err != nil {
+		if len(stakeInfoList) == 0 {
+			return nil
+		}
+
+		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, stakeInfoList.LockedBalanceTop20()); err != nil {
 			log.Error("failed to update stake info to nulink", "count", len(stakeInfoList), "error", err)
 		} else {
 			log.Error("succeeded to update stake info to nulink", "count", len(stakeInfoList))

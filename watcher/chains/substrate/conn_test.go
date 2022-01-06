@@ -13,7 +13,7 @@ import (
 
 var api *gsrpc.SubstrateAPI
 
-func init() {
+func Connect() {
 	var err error
 	api, err = gsrpc.NewSubstrateAPI(config.Default().RPCURL)
 	if err != nil {
@@ -33,6 +33,8 @@ func getKeyringPair() *signature.KeyringPair {
 }
 
 func TestConnection_RegisterWatcher(t *testing.T) {
+	Connect()
+
 	type fields struct {
 		api  *gsrpc.SubstrateAPI
 		url  string

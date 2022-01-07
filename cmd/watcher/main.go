@@ -13,13 +13,13 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/urfave/cli/v2"
 
 	"github.com/NuLink-network/watcher/watcher/chains/ethereum"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/config"
+	"github.com/NuLink-network/watcher/watcher/params"
 )
 
 var (
@@ -64,12 +64,12 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 		return nil, err
 	}
 
-	kp, err := signature.KeyringPairFromSecret(cfg.SubstrateConfig.Seed, cfg.SubstrateConfig.Network)
-	if err != nil {
-		return nil, err
-	}
+	//kp, err := signature.KeyringPairFromSecret(cfg.SubstrateConfig.Seed, cfg.SubstrateConfig.Network)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	subconn := substrate.NewConnection(cfg.SubstrateConfig.URL, &kp, stop)
+	subconn := substrate.NewConnection(cfg.SubstrateConfig.URL, params.Watcher, stop)
 	if err := subconn.Connect(); err != nil {
 		return nil, err
 	}

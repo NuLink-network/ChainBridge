@@ -80,8 +80,8 @@ func (l *Listener) PollBlocks() error {
 				retry--
 				continue
 			}
-			if err := WriteLatestBlock(l.LatestBlockPath, latestBlock); err != nil {
-				log.Error("Failed to write latest block", "block", latestBlock, "err", err)
+			if err := WriteLatestBlock(l.LatestBlockPath, currentBlock); err != nil {
+				log.Error("Failed to write latest block", "block", currentBlock, "err", err)
 			}
 
 			// Goto next block and reset retry counter

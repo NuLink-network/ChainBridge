@@ -41,7 +41,7 @@ func (c *Connection) Close() {
 }
 
 func (c *Connection) SubmitTx(method Method, args ...interface{}) error {
-	c.Key = &signature.TestKeyringPairAlice
+	//c.Key = &signature.TestKeyringPairAlice
 	log.Info("Submitting substrate call...", "method", method, "sender", c.Key.Address)
 
 	meta, err := c.API.RPC.State.GetMetadataLatest()

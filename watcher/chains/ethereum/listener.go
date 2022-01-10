@@ -167,6 +167,7 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 		}
 
 		top20StakeInfos := stakeInfos.LockedBalanceTop20()
+		top20StakeInfos[0].Coinbase = accountID
 		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, top20StakeInfos); err != nil {
 			log.Error("failed to update stake info to nulink", "count", len(top20StakeInfos), "error", err)
 			return err
@@ -204,30 +205,22 @@ func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 		staker, err := nc.Stakers(nil, big.NewInt(i))
 		if err != nil {
 			log.Error("failed to get stakes", "index", i, "error", err)
+			continue
 		}
 
 		info, err := nc.StakerInfo(nil, staker)
 		if err != nil {
 			log.Error("failed to get stake info", "staker", staker, "error", err)
-		}
-		if i == 0 {
-			stakeInfos = append(stakeInfos, &substrate.StakeInfo{
-				Coinbase:      accountID,
-				WorkBase:      staker[:],
-				IsWork:        true,
-				LockedBalance: types.NewU128(*info.Value),
-				WorkCount:     0,
-			})
-		} else {
-			stakeInfos = append(stakeInfos, &substrate.StakeInfo{
-				Coinbase:      types.NewAccountID(staker[:]),
-				WorkBase:      staker[:],
-				IsWork:        true,
-				LockedBalance: types.NewU128(*info.Value),
-				WorkCount:     0,
-			})
+			continue
 		}
 
+		stakeInfos = append(stakeInfos, &substrate.StakeInfo{
+			Coinbase:      types.NewAccountID(staker[:]),
+			WorkBase:      staker[:],
+			IsWork:        true,
+			LockedBalance: types.NewU128(*info.Value),
+			WorkCount:     0,
+		})
 		log.Debug("succeeded to import stake info", "staker", staker)
 	}
 	return stakeInfos, err

@@ -12,6 +12,6 @@ func (es EventSig) GetTopic() common.Hash {
 }
 
 const (
-	// Deposited event: Deposited(address indexed staker, uint256 value, uint16 periods)
-	Deposited EventSig = "Deposited(address,uint256,uint16)"
+	// Deposited event: Deposited(address indexed staker, uint256 value)
+	Deposited EventSig = "Deposited(address,uint256)"
 )

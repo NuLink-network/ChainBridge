@@ -19,13 +19,13 @@ var (
 
 	StakeInfoFileFlag = &cli.StringFlag{
 		Name:  "file",
-		Usage: "Stake info file",
+		Usage: "Store last stake info file",
 		Value: DefaultStakeInfoFile(),
 	}
 
 	BlockStoreFileFlag = &cli.StringFlag{
 		Name:  "blockstore",
-		Usage: "Store latest block umber file",
+		Usage: "Store last block umber file",
 		Value: DefaultLatestBlockFile(),
 	}
 )

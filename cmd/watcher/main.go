@@ -52,7 +52,7 @@ func init() {
 
 func main() {
 	if err := app.Run(os.Args); err != nil {
-		log.Error(err.Error())
+		log.Error("run failed", "error", err.Error())
 		os.Exit(1)
 	}
 }
@@ -109,6 +109,7 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 	listener.LatestBlockPath = lp
+	listener.LastStakeInfoPath = ctx.String(config.StakeInfoFileFlag.Name)
 
 	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {
 		log.Error("failed to register watcher", "error", err)
@@ -141,18 +142,20 @@ func setup(ctx *cli.Context) error {
 		return err
 	}
 	log.Info("setup watcher...")
-	return ethereum.ReadStakeInfoFromFile(ctx.String(config.StakeInfoFileFlag.Name))
+	//return ethereum.ReadStakeInfoFromFile(ctx.String(config.StakeInfoFileFlag.Name))
+	return nil
 }
 
 func exit(ctx *cli.Context) error {
 	log.Info("exit watcher...")
 	listener.Ethconn.Close()
-	return ethereum.WriteStakeInfoToFile(ctx.String(config.StakeInfoFileFlag.Name))
+	//return ethereum.WriteStakeInfoToFile(ctx.String(config.StakeInfoFileFlag.Name))
+	return nil
 }
 
 func startLogger(ctx *cli.Context) error {
 	var lvl log.Lvl
-	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(true)))
 
 	if lvlToInt, err := strconv.Atoi(ctx.String(config.VerbosityFlag.Name)); err == nil {
 		lvl = log.Lvl(lvlToInt)

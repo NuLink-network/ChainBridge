@@ -9,6 +9,8 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/NuLink-network/watcher/watcher/params"
 )
 
 var api *gsrpc.SubstrateAPI
@@ -61,7 +63,7 @@ func TestConnection_RegisterWatcher(t *testing.T) {
 
 			c := &Connection{
 				API: api,
-				Key: &signature.TestKeyringPairAlice,
+				Key: params.Watcher,
 			}
 			if err := c.SubmitTx(RegisterWatcher); (err != nil) != tt.wantErr {
 				t.Errorf("RegisterWatcher() error = %v, wantErr %v", err, tt.wantErr)
@@ -106,23 +108,23 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 			name: "t-1",
 			fields: fields{
 				api: api,
-				key: &signature.TestKeyringPairAlice,
+				key: params.Watcher,
 			},
 			args: args{
 				stakeInfos: []*StakeInfo{
 					{
 						Coinbase:      types.NewAccountID([]byte(address1.Hex())),
 						WorkBase:      address1[:],
-						IsWork:        true,
-						LockedBalance: types.NewU128(*big.NewInt(123456)),
-						WorkCount:     10,
+						IsWork:        false,
+						LockedBalance: types.NewU128(*big.NewInt(111111)),
+						WorkCount:     1,
 					},
 					{
 						Coinbase:      types.NewAccountID([]byte(address2.Hex())),
 						WorkBase:      address2[:],
 						IsWork:        true,
-						LockedBalance: types.NewU128(*big.NewInt(6600)),
-						WorkCount:     10,
+						LockedBalance: types.NewU128(*big.NewInt(222222)),
+						WorkCount:     2,
 					},
 				},
 			},
@@ -144,13 +146,10 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 }
 
 func TestGetAddressFromAccountID(t *testing.T) {
-	phrase := "indoor height cinnamon parent kite oxygen dolphin output pet bitter joke grain"
-	seed := "0xe1d5a01954b8320d8c5ceb88199487b5a3821bbc4b520286360a71a946f22c33"
-	kp, err := signature.KeyringPairFromSecret(phrase, 0)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Logf("kp: %+v\n", kp)
+	// galen
+	//seed := "0xe1d5a01954b8320d8c5ceb88199487b5a3821bbc4b520286360a71a946f22c33"
+	// watcher
+	seed := "0xb233c8411f90fa880d3f23a90af5e89896b73bf8ce95217f310c5f497ab3aaf6"
 
 	kp0, err := signature.KeyringPairFromSecret(seed, 0)
 	if err != nil {
@@ -158,23 +157,17 @@ func TestGetAddressFromAccountID(t *testing.T) {
 	}
 	t.Logf("kp0: %+v\n", kp0)
 
-	kp1, err := signature.KeyringPairFromSecret(seed, 1)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Logf("kp1: %+v\n", kp1)
-
-	kp2, err := signature.KeyringPairFromSecret(seed, 2)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Logf("kp2: %+v\n", kp2)
-
 	kp3, err := signature.KeyringPairFromSecret(seed, 3)
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("kp3: %+v\n", kp3)
+
+	kp100, err := signature.KeyringPairFromSecret(seed, 100)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("kp100: %+v\n", kp100)
 }
 
 func TestNewAccountFromHexAddress(t *testing.T) {

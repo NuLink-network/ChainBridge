@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -21,6 +22,8 @@ import (
 	"github.com/NuLink-network/watcher/watcher/params"
 )
 
+var first = true
+var accountID types.AccountID
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
@@ -29,6 +32,11 @@ type Listener struct {
 	Subconn         *substrate.Connection
 	LatestBlockPath string
 	Stop            chan struct{}
+}
+
+func init() {
+	bs, _ := hex.DecodeString("d0e38319ea54a336f829da6cb91e11806c3474c354a5c05476b76ea97d6db414")
+	accountID = types.NewAccountID(bs)
 }
 
 // PollBlocks will poll for the latest block and proceed to parse the associated events as it sees new blocks.
@@ -149,23 +157,22 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, e
 }
 
 func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
-	if latestBlock.Uint64()%uint64(params.EpochLength) != 0 {
-		return nil
-	}
+	if first || latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
+		first = false
+		log.Info("ready to update stake info to nulink", "block", latestBlock)
 
-	log.Info("ready to update stake info to nulink", "block", latestBlock)
+		stakeInfos, err := l.GetStakeInfo()
+		if err != nil {
+			return err
+		}
 
-	stakeInfos, err := l.GetStakeInfo()
-	if err != nil {
-		return err
+		top20StakeInfos := stakeInfos.LockedBalanceTop20()
+		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, top20StakeInfos); err != nil {
+			log.Error("failed to update stake info to nulink", "count", len(top20StakeInfos), "error", err)
+			return err
+		}
+		log.Info("succeeded to update stake info to nulink", "count", len(top20StakeInfos))
 	}
-
-	top20StakeInfos := stakeInfos.LockedBalanceTop20()
-	if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, top20StakeInfos); err != nil {
-		log.Error("failed to update stake info to nulink", "count", len(top20StakeInfos), "error", err)
-		return err
-	}
-	log.Info("succeeded to update stake info to nulink", "count", len(top20StakeInfos))
 	return nil
 }
 
@@ -203,14 +210,24 @@ func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 		if err != nil {
 			log.Error("failed to get stake info", "staker", staker, "error", err)
 		}
+		if i == 0 {
+			stakeInfos = append(stakeInfos, &substrate.StakeInfo{
+				Coinbase:      accountID,
+				WorkBase:      staker[:],
+				IsWork:        true,
+				LockedBalance: types.NewU128(*info.Value),
+				WorkCount:     0,
+			})
+		} else {
+			stakeInfos = append(stakeInfos, &substrate.StakeInfo{
+				Coinbase:      types.NewAccountID(staker[:]),
+				WorkBase:      staker[:],
+				IsWork:        true,
+				LockedBalance: types.NewU128(*info.Value),
+				WorkCount:     0,
+			})
+		}
 
-		stakeInfos = append(stakeInfos, &substrate.StakeInfo{
-			Coinbase:      types.NewAccountID(staker[:]),
-			WorkBase:      staker[:],
-			IsWork:        true,
-			LockedBalance: types.NewU128(*info.Value),
-			WorkCount:     0,
-		})
 		log.Debug("succeeded to import stake info", "staker", staker)
 	}
 	return stakeInfos, err

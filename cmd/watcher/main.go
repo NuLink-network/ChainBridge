@@ -30,7 +30,6 @@ var (
 var cliFlags = []cli.Flag{
 	config.VerbosityFlag,
 	config.ConfigFileFlag,
-	config.StakeInfoFileFlag,
 	config.BlockStoreFileFlag,
 }
 
@@ -109,7 +108,6 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 	listener.LatestBlockPath = lp
-	listener.LastStakeInfoPath = ctx.String(config.StakeInfoFileFlag.Name)
 
 	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {
 		log.Error("failed to register watcher", "error", err)

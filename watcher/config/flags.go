@@ -17,12 +17,6 @@ var (
 		Usage: "JSON configuration file",
 	}
 
-	StakeInfoFileFlag = &cli.StringFlag{
-		Name:  "file",
-		Usage: "Store last stake info file",
-		Value: DefaultStakeInfoFile(),
-	}
-
 	BlockStoreFileFlag = &cli.StringFlag{
 		Name:  "blockstore",
 		Usage: "Store last block umber file",

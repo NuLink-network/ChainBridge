@@ -16,7 +16,7 @@ var (
 
 var (
 	BlockRetryLimit = 5
-	EpochLength     = 5
+	EpochLength     = 1000
 )
 
 var BlockRetryInterval = time.Second * 5

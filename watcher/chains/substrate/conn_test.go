@@ -115,7 +115,7 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 					{
 						Coinbase:      types.NewAccountID([]byte(address1.Hex())),
 						WorkBase:      address1[:],
-						IsWork:        false,
+						IsWork:        true,
 						LockedBalance: types.NewU128(*big.NewInt(111111)),
 						WorkCount:     1,
 					},

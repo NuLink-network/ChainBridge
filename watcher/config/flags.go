@@ -22,4 +22,10 @@ var (
 		Usage: "Store last block umber file",
 		Value: DefaultLatestBlockFile(),
 	}
+
+	StakeInfoFileFlag = &cli.StringFlag{
+		Name:  "file",
+		Usage: "Store last stake info file",
+		Value: DefaultStakeInfoFile(),
+	}
 )

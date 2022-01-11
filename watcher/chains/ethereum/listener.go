@@ -3,6 +3,7 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -27,11 +28,12 @@ var accountID types.AccountID
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
-	Config          config.EthereumConfig
-	Ethconn         *Connection
-	Subconn         *substrate.Connection
-	LatestBlockPath string
-	Stop            chan struct{}
+	Config            config.EthereumConfig
+	Ethconn           *Connection
+	Subconn           *substrate.Connection
+	LatestBlockPath   string
+	LastStakeInfoPath string
+	Stop              chan struct{}
 }
 
 func init() {
@@ -166,15 +168,45 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 			return err
 		}
 
-		top20StakeInfos := stakeInfos.LockedBalanceTop20()
-		top20StakeInfos[0].Coinbase = accountID
+		lastInfos, err := ReadStakeInfos(l.LastStakeInfoPath)
+		if err != nil {
+			return err
+		}
+		top20StakeInfos := AssignCoinbase(stakeInfos.LockedBalanceTop20(), lastInfos)
 		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, top20StakeInfos); err != nil {
 			log.Error("failed to update stake info to nulink", "count", len(top20StakeInfos), "error", err)
 			return err
 		}
 		log.Info("succeeded to update stake info to nulink", "count", len(top20StakeInfos))
+
+		if err := WriteStakeInfos(l.LastStakeInfoPath, top20StakeInfos); err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func AssignCoinbase(top20StakeInfos substrate.StakeInfos, lastInfos map[string][32]byte) substrate.StakeInfos {
+	accounts := params.AccountIDs
+	newStakeIndex := make([]int, 0)
+	for i, info := range top20StakeInfos {
+		cb, ok := lastInfos[ethcommon.Bytes2Hex(info.WorkBase)]
+		if ok {
+			top20StakeInfos[i].Coinbase = cb
+			delete(accounts, cb)
+			continue
+		}
+		newStakeIndex = append(newStakeIndex, i)
+	}
+
+	as := make([]types.AccountID, 0, len(accounts))
+	for a := range accounts {
+		as = append(as, a)
+	}
+	for i, s := range newStakeIndex {
+		top20StakeInfos[s].Coinbase = as[i]
+	}
+	return top20StakeInfos
 }
 
 func fileExists(fileName string) (bool, error) {
@@ -226,61 +258,68 @@ func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 	return stakeInfos, err
 }
 
-//func ReadStakeInfos(file string) (substrate.StakeInfos, error) {
-//	stakeInfoList := make(substrate.StakeInfos, 0)
-//	// If it exists, load and return
-//	exists, err := fileExists(file)
-//	if err != nil {
-//		return stakeInfoList, err
-//	}
-//	if !exists {
-//		log.Warn("stake info file does not exist")
-//		return stakeInfoList, err
-//	}
-//
-//	data, err := ioutil.ReadFile(file)
-//	if err != nil {
-//		log.Error("read stake info list from file filed", "error", err)
-//		return stakeInfoList, err
-//	}
-//	if len(data) == 0 {
-//		log.Warn("stake info file is empty")
-//		return stakeInfoList, err
-//	}
-//
-//	var infos []*substrate.StakeInfo
-//	if err := rlp.DecodeBytes(data, &infos); err != nil {
-//		log.Error("rlp decode stake info list failed", "error", err)
-//		return stakeInfoList, err
-//	}
-//
-//	stakeInfoList = infos
-//
-//	return stakeInfoList, err
-//}
-//
-//func WriteStakeInfos(file string, infos substrate.StakeInfos) error {
-//	// Create dir if it does not exist
-//	if _, err := os.Stat(file); os.IsNotExist(err) {
-//		dir, _ := filepath.Split(file)
-//		err := os.MkdirAll(dir, os.ModePerm)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//
-//	data, err := rlp.EncodeToBytes(infos)
-//	if err != nil {
-//		log.Error("json marshal stake info list failed", "error", err)
-//		return err
-//	}
-//	if err := ioutil.WriteFile(file, data, 0664); err != nil {
-//		log.Error("write stake info list to file filed", "error", err)
-//		return err
-//	}
-//	log.Info("write stake info list to file succeeded", "count", len(infos))
-//	return nil
-//}
+func ReadStakeInfos(file string) (map[string][32]byte, error) {
+	//stakeInfoList := make(substrate.StakeInfos, 0)
+	stakeInfoList := make(map[string][32]byte, 0)
+	// If it exists, load and return
+	exists, err := fileExists(file)
+	if err != nil {
+		return stakeInfoList, err
+	}
+	if !exists {
+		log.Warn("stake info file does not exist")
+		return stakeInfoList, nil
+	}
+
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Error("read stake info list from file filed", "error", err)
+		return stakeInfoList, err
+	}
+	if len(data) == 0 {
+		log.Warn("stake info file is empty")
+		return stakeInfoList, nil
+	}
+
+	//var infos []*substrate.StakeInfo
+	var infos map[string][32]byte
+	if err := json.Unmarshal(data, &infos); err != nil {
+		log.Error("json unmarshal stake info list failed", "error", err)
+		return stakeInfoList, err
+	}
+
+	stakeInfoList = infos
+
+	return stakeInfoList, err
+}
+
+func WriteStakeInfos(file string, infos substrate.StakeInfos) error {
+	// Create dir if it does not exist
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		dir, _ := filepath.Split(file)
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+
+	stakeInfos := make(map[string][32]byte)
+	for _, info := range infos {
+		stakeInfos[ethcommon.Bytes2Hex(info.WorkBase)] = info.Coinbase
+	}
+
+	data, err := json.Marshal(stakeInfos)
+	if err != nil {
+		log.Error("json marshal stake info list failed", "error", err)
+		return err
+	}
+	if err := ioutil.WriteFile(file, data, 0664); err != nil {
+		log.Error("write stake info list to file filed", "error", err)
+		return err
+	}
+	log.Info("write stake info list to file succeeded", "count", len(stakeInfos))
+	return nil
+}
 
 func WriteLatestBlock(file string, number *big.Int) error {
 	// Create dir if it does not exist

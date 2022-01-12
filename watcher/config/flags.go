@@ -17,11 +17,11 @@ var (
 		Usage: "JSON configuration file",
 	}
 
-	BlockStoreFileFlag = &cli.StringFlag{
-		Name:  "blockstore",
-		Usage: "Store last block umber file",
-		Value: DefaultLatestBlockFile(),
-	}
+	//BlockStoreFileFlag = &cli.StringFlag{
+	//	Name:  "blockstore",
+	//	Usage: "Store last block umber file",
+	//	Value: DefaultLatestBlockFile(),
+	//}
 
 	StakeInfoFileFlag = &cli.StringFlag{
 		Name:  "file",

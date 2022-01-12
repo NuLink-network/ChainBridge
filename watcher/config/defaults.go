@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defaultStakeInfoFile   = "/stake_info.rlp"
+	defaultStakeInfoFile   = "/stake_info.json"
 	defaultLatestBlockFile = "/latest_block"
 )
 

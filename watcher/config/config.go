@@ -6,7 +6,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
@@ -31,17 +30,17 @@ type Config struct {
 }
 
 type EthereumConfig struct {
-	URL                 string   `json:"url"`
-	Http                bool     `json:"http"`
-	DepositContractAddr string   `json:"depositContractAddr"`
-	StartBlock          *big.Int `json:"startBlock"`
-	BlockConfirmations  *big.Int `json:"blockConfirmations"`
+	URL                 string `json:"url"`
+	Http                bool   `json:"http"`
+	DepositContractAddr string `json:"depositContractAddr"`
+	//StartBlock          *big.Int `json:"startBlock"`
+	//BlockConfirmations  *big.Int `json:"blockConfirmations"`
 }
 
 type SubstrateConfig struct {
-	URL     string `json:"url"`
-	Seed    string `json:"seed"`
-	Network uint8  `json:"network"`
+	URL string `json:"url"`
+	//Seed    string `json:"seed"`
+	//Network uint8  `json:"network"`
 }
 
 func (c *Config) validate() error {
@@ -54,9 +53,9 @@ func (c *Config) validate() error {
 	if IsEmpty(c.SubstrateConfig.URL) {
 		return fmt.Errorf("required field URL for substrate")
 	}
-	if IsEmpty(c.SubstrateConfig.Seed) {
-		return fmt.Errorf("required field Seed for substrate")
-	}
+	//if IsEmpty(c.SubstrateConfig.Seed) {
+	//	return fmt.Errorf("required field Seed for substrate")
+	//}
 	return nil
 }
 

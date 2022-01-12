@@ -30,7 +30,6 @@ var (
 var cliFlags = []cli.Flag{
 	config.VerbosityFlag,
 	config.ConfigFileFlag,
-	config.BlockStoreFileFlag,
 	config.StakeInfoFileFlag,
 }
 
@@ -94,21 +93,21 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	lp := ctx.String(config.BlockStoreFileFlag.Name)
-	number, err := ethereum.ReadLatestBlock(lp)
-	if err != nil {
-		return err
-	}
-	if number.Cmp(cfg.EthereumConfig.StartBlock) == 1 {
-		cfg.EthereumConfig.StartBlock = number
-	}
+	//lp := ctx.String(config.BlockStoreFileFlag.Name)
+	//number, err := ethereum.ReadLatestBlock(lp)
+	//if err != nil {
+	//	return err
+	//}
+	//if number.Cmp(cfg.EthereumConfig.StartBlock) == 1 {
+	//	cfg.EthereumConfig.StartBlock = number
+	//}
 
 	listener, err = InitializeChain(cfg)
 	if err != nil {
 		log.Error("failed to initialize chain", "error", err)
 		return err
 	}
-	listener.LatestBlockPath = lp
+	//listener.LatestBlockPath = lp
 	listener.LastStakeInfoPath = ctx.String(config.StakeInfoFileFlag.Name)
 
 	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {

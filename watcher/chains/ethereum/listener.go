@@ -28,10 +28,10 @@ var accountID types.AccountID
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
-	Config            config.EthereumConfig
-	Ethconn           *Connection
-	Subconn           *substrate.Connection
-	LatestBlockPath   string
+	Config  config.EthereumConfig
+	Ethconn *Connection
+	Subconn *substrate.Connection
+	//LatestBlockPath   string
 	LastStakeInfoPath string
 	Stop              chan struct{}
 }
@@ -46,11 +46,11 @@ func init() {
 // a block will be retried up to BlockRetryLimit times before continuing to the next block.
 func (l *Listener) PollBlocks() error {
 	var (
-		currentBlock = l.Config.StartBlock
+		currentBlock = big.NewInt(1)
 		retry        = params.BlockRetryLimit
 	)
 
-	log.Info("Polling Blocks...", "block", currentBlock)
+	log.Info("Polling Blocks...")
 
 	for {
 		select {
@@ -77,25 +77,25 @@ func (l *Listener) PollBlocks() error {
 			}
 
 			// Sleep if the difference is less than BlockConfirmations; (latestBlock - currentBlock) < BlockConfirmations
-			if big.NewInt(0).Sub(latestBlock, currentBlock).Cmp(l.Config.BlockConfirmations) == -1 {
-				log.Debug("Block not ready, will retry", "target", currentBlock.Uint64()+l.Config.BlockConfirmations.Uint64(), "latest", latestBlock)
+			if latestBlock.Cmp(currentBlock) != 1 {
+				log.Debug("Block not ready, will retry", "target", latestBlock.Uint64()+1, "latest", latestBlock)
 				time.Sleep(params.BlockRetryInterval)
 				continue
 			}
-			log.Info("get latest block", "block", currentBlock)
+			log.Info("get latest block", "block", latestBlock)
 
-			err = l.syncStakeInfos(currentBlock)
+			err = l.syncStakeInfos(latestBlock)
 			if err != nil {
 				l.Stop <- struct{}{}
 				return err
 			}
 
-			if err := WriteLatestBlock(l.LatestBlockPath, latestBlock); err != nil {
-				log.Error("Failed to write latest block", "block", latestBlock, "err", err)
-			}
+			//if err := WriteLatestBlock(l.LatestBlockPath, latestBlock); err != nil {
+			//	log.Error("Failed to write latest block", "block", latestBlock, "err", err)
+			//}
 
 			// Goto next block and reset retry counter
-			currentBlock.Add(currentBlock, big.NewInt(1))
+			currentBlock = latestBlock
 			retry = params.BlockRetryLimit
 		}
 	}
@@ -187,8 +187,12 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 }
 
 func AssignCoinbase(top20StakeInfos substrate.StakeInfos, lastInfos map[string][32]byte) substrate.StakeInfos {
-	accounts := params.AccountIDs
 	newStakeIndex := make([]int, 0)
+	accounts := make(map[types.AccountID]struct{}, len(params.AccountIDs))
+	for k, v := range params.AccountIDs {
+		accounts[k] = v
+	}
+
 	for i, info := range top20StakeInfos {
 		cb, ok := lastInfos[ethcommon.Bytes2Hex(info.WorkBase)]
 		if ok {

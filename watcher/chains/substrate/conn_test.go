@@ -130,6 +130,17 @@ func TestConnection_UpdateStakeInfo(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "t-2",
+			fields: fields{
+				api: api,
+				key: params.Watcher,
+			},
+			args: args{
+				stakeInfos: []*StakeInfo{},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

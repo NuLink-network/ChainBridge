@@ -182,6 +182,12 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 		if err := WriteStakeInfos(l.LastStakeInfoPath, top20StakeInfos); err != nil {
 			return err
 		}
+	} else if latestBlock.Uint64()%10 == 0 {
+		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, substrate.StakeInfos{}); err != nil {
+			log.Error("failed to update empty stake info to nulink", "count", 0, "error", err)
+			return err
+		}
+		log.Info("succeeded to update empty stake info to nulink", "count", 0)
 	}
 	return nil
 }

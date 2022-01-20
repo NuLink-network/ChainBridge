@@ -12,7 +12,7 @@ var (
 	EpochLength     = 1000
 )
 
-var BlockRetryInterval = time.Second * 5
+var BlockRetryInterval = time.Second * 2
 
 var (
 	Watcher = &signature.KeyringPair{

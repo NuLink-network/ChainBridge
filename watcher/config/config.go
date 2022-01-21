@@ -27,6 +27,7 @@ func IsEmpty(s string) bool {
 type Config struct {
 	EthereumConfig  EthereumConfig  `json:"ethereumConfig"`
 	SubstrateConfig SubstrateConfig `json:"substrateConfig"`
+	PlatonConfig    PlatonConfig    `json:"platonConfig"`
 }
 
 type EthereumConfig struct {
@@ -35,6 +36,14 @@ type EthereumConfig struct {
 	DepositContractAddr string `json:"depositContractAddr"`
 	//StartBlock          *big.Int `json:"startBlock"`
 	//BlockConfirmations  *big.Int `json:"blockConfirmations"`
+}
+
+type PlatonConfig struct {
+	URL                 string `json:"url"`
+	Http                bool   `json:"http"`
+	ChainID             int64  `json:"chainId"`
+	PrivateKey          string `json:"privateKey"`
+	DepositContractAddr string `json:"depositContractAddr"`
 }
 
 type SubstrateConfig struct {
@@ -53,9 +62,18 @@ func (c *Config) validate() error {
 	if IsEmpty(c.SubstrateConfig.URL) {
 		return fmt.Errorf("required field URL for substrate")
 	}
-	//if IsEmpty(c.SubstrateConfig.Seed) {
-	//	return fmt.Errorf("required field Seed for substrate")
-	//}
+	if IsEmpty(c.PlatonConfig.URL) {
+		return fmt.Errorf("required field URL for platon")
+	}
+	if c.PlatonConfig.ChainID == 0 {
+		return fmt.Errorf("required field URL for ChainID")
+	}
+	if IsEmpty(c.PlatonConfig.PrivateKey) {
+		return fmt.Errorf("required field URL for PrivateKey")
+	}
+	if IsEmpty(c.PlatonConfig.DepositContractAddr) {
+		return fmt.Errorf("required field DepositContractAddr for platon")
+	}
 	return nil
 }
 

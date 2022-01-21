@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -14,10 +15,14 @@ import (
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	eth "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/NuLink-network/watcher/watcher/bindings/nucypher"
+	stake "github.com/NuLink-network/watcher/watcher/bindings/platon"
+	"github.com/NuLink-network/watcher/watcher/chains/platon"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/config"
 	"github.com/NuLink-network/watcher/watcher/params"
@@ -28,10 +33,10 @@ var accountID types.AccountID
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
-	Config  config.EthereumConfig
-	Ethconn *Connection
-	Subconn *substrate.Connection
-	//LatestBlockPath   string
+	Config            *config.Config
+	Ethconn           *Connection
+	Subconn           *substrate.Connection
+	Platonconn        *platon.Connection
 	LastStakeInfoPath string
 	Stop              chan struct{}
 }
@@ -104,7 +109,7 @@ func (l *Listener) PollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	log.Info("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(ethcommon.HexToAddress(l.Config.DepositContractAddr), Deposited, latestBlock, latestBlock)
+	query := buildQuery(ethcommon.HexToAddress(l.Config.EthereumConfig.DepositContractAddr), Deposited, latestBlock, latestBlock)
 
 	// querying for logs
 	logs, err := l.Ethconn.Client.FilterLogs(context.Background(), query)
@@ -231,7 +236,7 @@ func fileExists(fileName string) (bool, error) {
 
 func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 	stakeInfos := make(substrate.StakeInfos, 0)
-	nc, err := nucypher.NewNucypher(ethcommon.HexToAddress(l.Config.DepositContractAddr), l.Ethconn.Client)
+	nc, err := nucypher.NewNucypher(ethcommon.HexToAddress(l.Config.EthereumConfig.DepositContractAddr), l.Ethconn.Client)
 	if err != nil {
 		log.Error("failed to new nucypher", "error", err)
 		return stakeInfos, nil
@@ -266,6 +271,59 @@ func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 		log.Debug("succeeded to import stake info", "staker", staker)
 	}
 	return stakeInfos, err
+}
+
+func (l *Listener) NewTransactor() (*bind.TransactOpts, error) {
+	pk, err := crypto.HexToECDSA(l.Config.PlatonConfig.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	//publicKey := pk.Public()
+	publicKeyECDSA, ok := pk.Public().(*ecdsa.PublicKey)
+	if !ok {
+		return nil, errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+	nonce, err := l.Platonconn.Client.PendingNonceAt(context.Background(), crypto.PubkeyToAddress(*publicKeyECDSA))
+	if err != nil {
+		return nil, err
+	}
+	gasPrice, err := l.Platonconn.Client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	opts, err := bind.NewKeyedTransactorWithChainID(pk, big.NewInt(l.Config.PlatonConfig.ChainID))
+	if err != nil {
+		panic(err)
+	}
+	opts.Nonce = big.NewInt(int64(nonce))
+	opts.Value = big.NewInt(0)
+	opts.GasPrice = gasPrice
+	//opts.GasLimit = uint64(3000000)
+	return opts, nil
+}
+
+func (l *Listener) UpdateStakeToPlaton(infos substrate.StakeInfos) error {
+	staking, err := stake.NewStaking(ethcommon.HexToAddress(l.Config.PlatonConfig.DepositContractAddr), l.Platonconn.Client)
+	if err != nil {
+		log.Error("failed to new staking", "error", err)
+		return nil
+	}
+
+	opts, err := l.NewTransactor()
+	if err != nil {
+		return err
+	}
+	for i, info := range infos {
+		opts.Nonce = new(big.Int).Add(opts.Nonce, big.NewInt(int64(i)))
+		_, err := staking.UpdateStaker(opts, ethcommon.BytesToAddress(info.WorkBase), info.LockedBalance.Int, big.NewInt(0), info.IsWork)
+		if err != nil {
+			log.Error("failed to update staker", "error", err)
+			return err
+		}
+	}
+	return nil
 }
 
 func ReadStakeInfos(file string) (map[string][32]byte, error) {

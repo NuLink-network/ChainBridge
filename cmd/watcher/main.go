@@ -17,6 +17,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/NuLink-network/watcher/watcher/chains/ethereum"
+	"github.com/NuLink-network/watcher/watcher/chains/platon"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/config"
 	"github.com/NuLink-network/watcher/watcher/params"
@@ -73,11 +74,17 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 		return nil, err
 	}
 
+	platonconn := platon.NewConnection(cfg.PlatonConfig.URL, cfg.PlatonConfig.Http, stop)
+	if err := platonconn.Connect(); err != nil {
+		return nil, err
+	}
+
 	return &ethereum.Listener{
-		Config:  cfg.EthereumConfig,
-		Ethconn: ethconn,
-		Subconn: subconn,
-		Stop:    stop,
+		Config:     cfg,
+		Ethconn:    ethconn,
+		Subconn:    subconn,
+		Platonconn: platonconn,
+		Stop:       stop,
 	}, nil
 }
 

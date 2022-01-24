@@ -91,8 +91,7 @@ func (l *Listener) PollBlocks() error {
 
 			err = l.syncStakeInfos(latestBlock)
 			if err != nil {
-				l.Stop <- struct{}{}
-				return err
+				log.Error("sync stake infos failed", "error", err)
 			}
 
 			//if err := WriteLatestBlock(l.LatestBlockPath, latestBlock); err != nil {
@@ -183,6 +182,10 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 			return err
 		}
 		log.Info("succeeded to update stake info to nulink", "count", len(top20StakeInfos))
+
+		if err = l.UpdateStakeToPlaton(top20StakeInfos); err != nil {
+			return err
+		}
 
 		if err := WriteStakeInfos(l.LastStakeInfoPath, top20StakeInfos); err != nil {
 			return err
@@ -292,8 +295,12 @@ func (l *Listener) NewTransactor() (*bind.TransactOpts, error) {
 	if err != nil {
 		return nil, err
 	}
+	chainID, err := l.Platonconn.Client.ChainID(context.Background())
+	if err != nil {
+		return nil, err
+	}
 
-	opts, err := bind.NewKeyedTransactorWithChainID(pk, big.NewInt(l.Config.PlatonConfig.ChainID))
+	opts, err := bind.NewKeyedTransactorWithChainID(pk, chainID)
 	if err != nil {
 		panic(err)
 	}
@@ -311,18 +318,23 @@ func (l *Listener) UpdateStakeToPlaton(infos substrate.StakeInfos) error {
 		return nil
 	}
 
-	opts, err := l.NewTransactor()
-	if err != nil {
-		return err
-	}
-	for i, info := range infos {
-		opts.Nonce = new(big.Int).Add(opts.Nonce, big.NewInt(int64(i)))
-		_, err := staking.UpdateStaker(opts, ethcommon.BytesToAddress(info.WorkBase), info.LockedBalance.Int, big.NewInt(0), info.IsWork)
+	//opts, err := l.NewTransactor()
+	//if err != nil {
+	//	return err
+	//}
+	for _, info := range infos {
+		//opts.Nonce = new(big.Int).Add(opts.Nonce, big.NewInt(int64(1)))
+		opts, err := l.NewTransactor()
 		if err != nil {
-			log.Error("failed to update staker", "error", err)
+			return err
+		}
+		_, err = staking.UpdateStaker(opts, ethcommon.BytesToAddress(info.WorkBase), info.LockedBalance.Int, big.NewInt(0), info.IsWork)
+		if err != nil {
+			log.Error("failed to update stake info to platon", "error", err)
 			return err
 		}
 	}
+	log.Info("succeeded to update stake info to platon", "count", len(infos))
 	return nil
 }
 

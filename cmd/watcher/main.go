@@ -155,6 +155,7 @@ func setup(ctx *cli.Context) error {
 func exit(ctx *cli.Context) error {
 	log.Info("exit watcher...")
 	listener.Ethconn.Close()
+	listener.Platonconn.Close()
 	//return ethereum.WriteStakeInfoToFile(ctx.String(config.StakeInfoFileFlag.Name))
 	return nil
 }

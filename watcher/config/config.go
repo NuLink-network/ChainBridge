@@ -65,9 +65,9 @@ func (c *Config) validate() error {
 	if IsEmpty(c.PlatonConfig.URL) {
 		return fmt.Errorf("required field URL for platon")
 	}
-	if c.PlatonConfig.ChainID == 0 {
-		return fmt.Errorf("required field URL for ChainID")
-	}
+	//if c.PlatonConfig.ChainID == 0 {
+	//	return fmt.Errorf("required field URL for ChainID")
+	//}
 	if IsEmpty(c.PlatonConfig.PrivateKey) {
 		return fmt.Errorf("required field URL for PrivateKey")
 	}

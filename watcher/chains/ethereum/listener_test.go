@@ -5,20 +5,28 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"os"
 	"reflect"
 	"testing"
 
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 
+	"github.com/NuLink-network/watcher/watcher/chains/platon"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
+	"github.com/NuLink-network/watcher/watcher/config"
 )
 
 var (
 	StakeInfo20   = make(substrate.StakeInfos, 0, 20)
 	LastStakeInfo = make(map[string][32]byte)
 	WantStakeInfo = make(substrate.StakeInfos, 0, 20)
+
+	address1 = common.HexToAddress("0xa7f6c9a5052a08a14ff0e3349094b6efbc591ea4")
+	address2 = common.HexToAddress("0x00192fb10df37c9fb26829eb2cc623cd1bf599e8")
 
 	Coinbase = []types.AccountID{
 		{0xd0, 0xe3, 0x83, 0x19, 0xea, 0x54, 0xa3, 0x36, 0xf8, 0x29, 0xda, 0x6c, 0xb9, 0x1e, 0x11, 0x80, 0x6c, 0x34, 0x74, 0xc3, 0x54, 0xa5, 0xc0, 0x54, 0x76, 0xb7, 0x6e, 0xa9, 0x7d, 0x6d, 0xb4, 0x14},
@@ -73,6 +81,13 @@ var (
 		{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1a},
 	}
 )
+
+func init() {
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(true)))
+	glogger.Verbosity(log.LvlDebug)
+	log.Root().SetHandler(glogger)
+
+}
 
 func Init() {
 	for i := 0; i < 20; i++ {
@@ -318,4 +333,84 @@ func TestWriteAndReadStakeInfo(t *testing.T) {
 		t.Errorf("ReadStakeInfos() = %v, want %v", got, want)
 	}
 
+}
+
+func TestListener_UpdateStakeToPlaton(t *testing.T) {
+	client, err := ethclient.Dial("http://35.247.155.162:6789")
+	if err != nil {
+		panic(err)
+	}
+	type fields struct {
+		Config            *config.Config
+		Ethconn           *Connection
+		Subconn           *substrate.Connection
+		Platonconn        *platon.Connection
+		LastStakeInfoPath string
+		Stop              chan struct{}
+	}
+	type args struct {
+		infos substrate.StakeInfos
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "t-1",
+			fields: fields{
+				Config: &config.Config{
+					PlatonConfig: config.PlatonConfig{
+						URL:                 "http://35.247.155.162:6789",
+						Http:                true,
+						PrivateKey:          "814a3ac398642139a6436600f46924d9ab62e22c365598f4949651af40e537ac",
+						DepositContractAddr: "0xee653156471A1eAB591D6e41ec25b5BEC72A361f",
+					},
+				},
+				Platonconn: &platon.Connection{
+					URL:    "http://35.247.155.162:6789",
+					Http:   true,
+					Client: client,
+					Stop:   nil,
+				},
+				LastStakeInfoPath: "",
+				Stop:              nil,
+			},
+			args: args{
+				infos: []*substrate.StakeInfo{
+					{
+						Coinbase:      types.NewAccountID([]byte(address1.Hex())),
+						WorkBase:      address1[:],
+						IsWork:        true,
+						LockedBalance: types.NewU128(*big.NewInt(111111)),
+						WorkCount:     1,
+					},
+					{
+						Coinbase:      types.NewAccountID([]byte(address2.Hex())),
+						WorkBase:      address2[:],
+						IsWork:        true,
+						LockedBalance: types.NewU128(*big.NewInt(222222)),
+						WorkCount:     2,
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &Listener{
+				Config:            tt.fields.Config,
+				Ethconn:           tt.fields.Ethconn,
+				Subconn:           tt.fields.Subconn,
+				Platonconn:        tt.fields.Platonconn,
+				LastStakeInfoPath: tt.fields.LastStakeInfoPath,
+				Stop:              tt.fields.Stop,
+			}
+			if err := l.UpdateStakeToPlaton(tt.args.infos); (err != nil) != tt.wantErr {
+				t.Errorf("UpdateStakeToPlaton() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }

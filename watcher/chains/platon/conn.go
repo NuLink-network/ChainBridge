@@ -56,5 +56,4 @@ func (c *Connection) Close() {
 	if c.Client != nil {
 		c.Client.Close()
 	}
-	close(c.Stop)
 }

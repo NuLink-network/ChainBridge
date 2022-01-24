@@ -318,21 +318,26 @@ func (l *Listener) UpdateStakeToPlaton(infos substrate.StakeInfos) error {
 		return nil
 	}
 
-	//opts, err := l.NewTransactor()
-	//if err != nil {
-	//	return err
-	//}
+	opts, err := l.NewTransactor()
+	if err != nil {
+		return err
+	}
+
+	length := len(infos)
+	owners := make([]ethcommon.Address, 0, length)
+	balances := make([]*big.Int, 0, length)
+	workCounts := make([]*big.Int, 0, length)
+	isWorks := make([]bool, 0, length)
 	for _, info := range infos {
-		//opts.Nonce = new(big.Int).Add(opts.Nonce, big.NewInt(int64(1)))
-		opts, err := l.NewTransactor()
-		if err != nil {
-			return err
-		}
-		_, err = staking.UpdateStaker(opts, ethcommon.BytesToAddress(info.WorkBase), info.LockedBalance.Int, big.NewInt(0), info.IsWork)
-		if err != nil {
-			log.Error("failed to update stake info to platon", "error", err)
-			return err
-		}
+		owners = append(owners, ethcommon.BytesToAddress(info.WorkBase))
+		balances = append(balances, info.LockedBalance.Int)
+		workCounts = append(workCounts, big.NewInt(0))
+		isWorks = append(isWorks, true)
+	}
+	_, err = staking.UpdateStakers(opts, owners, balances, workCounts, isWorks)
+	if err != nil {
+		log.Error("failed to update stake info to platon", "error", err)
+		return err
 	}
 	log.Info("succeeded to update stake info to platon", "count", len(infos))
 	return nil

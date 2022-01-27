@@ -15,6 +15,7 @@ var (
 	ConfigFileFlag = &cli.StringFlag{
 		Name:  "config",
 		Usage: "JSON configuration file",
+		Value: DefaultConfigFile(),
 	}
 
 	//BlockStoreFileFlag = &cli.StringFlag{

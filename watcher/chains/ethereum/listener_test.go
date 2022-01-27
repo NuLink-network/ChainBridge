@@ -362,10 +362,10 @@ func TestListener_UpdateStakeToPlaton(t *testing.T) {
 			fields: fields{
 				Config: &config.Config{
 					PlatonConfig: config.PlatonConfig{
-						URL:                 "http://35.247.155.162:6789",
-						Http:                true,
-						PrivateKey:          "814a3ac398642139a6436600f46924d9ab62e22c365598f4949651af40e537ac",
-						DepositContractAddr: "0xee653156471A1eAB591D6e41ec25b5BEC72A361f",
+						URL:               "http://35.247.155.162:6789",
+						Http:              true,
+						PrivateKey:        "814a3ac398642139a6436600f46924d9ab62e22c365598f4949651af40e537ac",
+						StakeContractAddr: "0xee653156471A1eAB591D6e41ec25b5BEC72A361f",
 					},
 				},
 				Platonconn: &platon.Connection{
@@ -410,6 +410,65 @@ func TestListener_UpdateStakeToPlaton(t *testing.T) {
 			}
 			if err := l.UpdateStakeToPlaton(tt.args.infos); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateStakeToPlaton() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestListener_GiveOutRewardOfPolicy(t *testing.T) {
+	client, err := ethclient.Dial("http://35.247.155.162:6789")
+	if err != nil {
+		panic(err)
+	}
+
+	type fields struct {
+		Config            *config.Config
+		Ethconn           *Connection
+		Subconn           *substrate.Connection
+		Platonconn        *platon.Connection
+		LastStakeInfoPath string
+		Stop              chan struct{}
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name: "t",
+			fields: fields{
+				Config: &config.Config{
+					PlatonConfig: config.PlatonConfig{
+						URL:                "http://35.247.155.162:6789",
+						Http:               true,
+						PrivateKey:         "814a3ac398642139a6436600f46924d9ab62e22c365598f4949651af40e537ac",
+						PolicyContractAddr: "0x4d2e3B25b2982F15022BE1a43757DBed3F529fe4",
+					},
+				},
+				Platonconn: &platon.Connection{
+					URL:    "http://35.247.155.162:6789",
+					Http:   true,
+					Client: client,
+					Stop:   nil,
+				},
+				LastStakeInfoPath: "",
+				Stop:              nil,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &Listener{
+				Config:            tt.fields.Config,
+				Ethconn:           tt.fields.Ethconn,
+				Subconn:           tt.fields.Subconn,
+				Platonconn:        tt.fields.Platonconn,
+				LastStakeInfoPath: tt.fields.LastStakeInfoPath,
+				Stop:              tt.fields.Stop,
+			}
+			if err := l.GiveOutRewardOfPolicy(); (err != nil) != tt.wantErr {
+				t.Errorf("GiveOutRewardOfPolicy() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

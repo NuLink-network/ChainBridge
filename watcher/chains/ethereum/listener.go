@@ -21,7 +21,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/NuLink-network/watcher/watcher/bindings/nucypher"
-	stake "github.com/NuLink-network/watcher/watcher/bindings/platon"
+	"github.com/NuLink-network/watcher/watcher/bindings/platon/policy"
+	"github.com/NuLink-network/watcher/watcher/bindings/platon/staking"
 	"github.com/NuLink-network/watcher/watcher/chains/platon"
 	"github.com/NuLink-network/watcher/watcher/chains/substrate"
 	"github.com/NuLink-network/watcher/watcher/config"
@@ -186,16 +187,27 @@ func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
 		if err = l.UpdateStakeToPlaton(top20StakeInfos); err != nil {
 			return err
 		}
+		if err := l.GiveOutRewardOfPolicy(); err != nil {
+			return err
+		}
 
 		if err := WriteStakeInfos(l.LastStakeInfoPath, top20StakeInfos); err != nil {
 			return err
 		}
 	} else if latestBlock.Uint64()%10 == 0 {
+		// update empty give out reward to staker
 		if err := l.Subconn.SubmitTx(substrate.UpdateStakeInfo, substrate.StakeInfos{}); err != nil {
 			log.Error("failed to update empty stake info to nulink", "count", 0, "error", err)
 			return err
 		}
 		log.Info("succeeded to update empty stake info to nulink", "count", 0)
+
+		if err := l.UpdateStakeToPlaton(substrate.StakeInfos{}); err != nil {
+			return err
+		}
+		if err := l.GiveOutRewardOfPolicy(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -312,7 +324,7 @@ func (l *Listener) NewTransactor() (*bind.TransactOpts, error) {
 }
 
 func (l *Listener) UpdateStakeToPlaton(infos substrate.StakeInfos) error {
-	staking, err := stake.NewStaking(ethcommon.HexToAddress(l.Config.PlatonConfig.DepositContractAddr), l.Platonconn.Client)
+	s, err := staking.NewStaking(ethcommon.HexToAddress(l.Config.PlatonConfig.StakeContractAddr), l.Platonconn.Client)
 	if err != nil {
 		log.Error("failed to new staking", "error", err)
 		return nil
@@ -334,12 +346,32 @@ func (l *Listener) UpdateStakeToPlaton(infos substrate.StakeInfos) error {
 		workCounts = append(workCounts, big.NewInt(0))
 		isWorks = append(isWorks, true)
 	}
-	_, err = staking.UpdateStakers(opts, owners, balances, workCounts, isWorks)
+	_, err = s.UpdateStakers(opts, owners, balances, workCounts, isWorks)
 	if err != nil {
 		log.Error("failed to update stake info to platon", "error", err)
 		return err
 	}
 	log.Info("succeeded to update stake info to platon", "count", len(infos))
+	return nil
+}
+
+func (l *Listener) GiveOutRewardOfPolicy() error {
+	pl, err := policy.NewPolicy(ethcommon.HexToAddress(l.Config.PlatonConfig.PolicyContractAddr), l.Platonconn.Client)
+	if err != nil {
+		log.Error("failed to new policy", "error", err)
+		return nil
+	}
+
+	opts, err := l.NewTransactor()
+	if err != nil {
+		return err
+	}
+	tx, err := pl.GiveOutReward(opts)
+	if err != nil {
+		log.Error("failed to give out reward of policy", "error", err)
+		return err
+	}
+	log.Info("succeeded to give out reward of policy", "hash", tx.Hash())
 	return nil
 }
 

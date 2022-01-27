@@ -39,11 +39,11 @@ type EthereumConfig struct {
 }
 
 type PlatonConfig struct {
-	URL                 string `json:"url"`
-	Http                bool   `json:"http"`
-	ChainID             int64  `json:"chainId"`
-	PrivateKey          string `json:"privateKey"`
-	DepositContractAddr string `json:"depositContractAddr"`
+	URL                string `json:"url"`
+	Http               bool   `json:"http"`
+	PrivateKey         string `json:"privateKey"`
+	StakeContractAddr  string `json:"stakeContractAddr"`
+	PolicyContractAddr string `json:"policyContractAddr"`
 }
 
 type SubstrateConfig struct {
@@ -71,8 +71,11 @@ func (c *Config) validate() error {
 	if IsEmpty(c.PlatonConfig.PrivateKey) {
 		return fmt.Errorf("required field URL for PrivateKey")
 	}
-	if IsEmpty(c.PlatonConfig.DepositContractAddr) {
-		return fmt.Errorf("required field DepositContractAddr for platon")
+	if IsEmpty(c.PlatonConfig.StakeContractAddr) {
+		return fmt.Errorf("required field StakeContractAddr for platon")
+	}
+	if IsEmpty(c.PlatonConfig.PolicyContractAddr) {
+		return fmt.Errorf("required field PolicyContractAddr for platon")
 	}
 	return nil
 }

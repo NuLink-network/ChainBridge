@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package platon
+package staking
 
 import (
 	"math/big"
@@ -27,7 +27,7 @@ var (
 )
 
 // StakingABI is the input ABI used to generate the binding from.
-const StakingABI = "[{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"_amount\",\"type\":\"uint64\"}],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"leaveStaker\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"newStaker\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"_stakeToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_manager\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_stakaAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_totalReward\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_totalReward\",\"type\":\"uint256\"}],\"name\":\"setTotalReword\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"_stakeToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_stakaAmount\",\"type\":\"uint256\"}],\"name\":\"updateStakeInfo\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_workCount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"_isWork\",\"type\":\"bool\"}],\"name\":\"updateStaker\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"_owners\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_balances\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_workCounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bool[]\",\"name\":\"_isWorks\",\"type\":\"bool[]\"}],\"name\":\"UpdateStakers\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_sender\",\"type\":\"address\"}],\"name\":\"isManager\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"isStaker\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"managers\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"stakerInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"contractIERC20\",\"name\":\"stakeToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"stakeBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"workcount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isWork\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"stakerReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalStakeBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const StakingABI = "[{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"_stakeToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_manager\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_reward\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"_owners\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_balances\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_workCounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bool[]\",\"name\":\"_isWorks\",\"type\":\"bool[]\"}],\"name\":\"UpdateStakers\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_reward\",\"type\":\"uint256\"}],\"name\":\"addReward\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_sender\",\"type\":\"address\"}],\"name\":\"isManager\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"isStaker\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"managers\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"stakerInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"contractIERC20\",\"name\":\"stakeToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"stakeBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"workcount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isWork\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"stakerReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"stakers\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalStakeBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // Staking is an auto generated Go binding around an Ethereum contract.
 type Staking struct {
@@ -386,6 +386,37 @@ func (_Staking *StakingCallerSession) StakerReward(arg0 common.Address) (*big.In
 	return _Staking.Contract.StakerReward(&_Staking.CallOpts, arg0)
 }
 
+// Stakers is a free data retrieval call binding the contract method 0xfd5e6dd1.
+//
+// Solidity: function stakers(uint256 ) view returns(address)
+func (_Staking *StakingCaller) Stakers(opts *bind.CallOpts, arg0 *big.Int) (common.Address, error) {
+	var out []interface{}
+	err := _Staking.contract.Call(opts, &out, "stakers", arg0)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// Stakers is a free data retrieval call binding the contract method 0xfd5e6dd1.
+//
+// Solidity: function stakers(uint256 ) view returns(address)
+func (_Staking *StakingSession) Stakers(arg0 *big.Int) (common.Address, error) {
+	return _Staking.Contract.Stakers(&_Staking.CallOpts, arg0)
+}
+
+// Stakers is a free data retrieval call binding the contract method 0xfd5e6dd1.
+//
+// Solidity: function stakers(uint256 ) view returns(address)
+func (_Staking *StakingCallerSession) Stakers(arg0 *big.Int) (common.Address, error) {
+	return _Staking.Contract.Stakers(&_Staking.CallOpts, arg0)
+}
+
 // TotalReward is a free data retrieval call binding the contract method 0x750142e6.
 //
 // Solidity: function totalReward() view returns(uint256)
@@ -469,67 +500,46 @@ func (_Staking *StakingTransactorSession) UpdateStakers(_owners []common.Address
 	return _Staking.Contract.UpdateStakers(&_Staking.TransactOpts, _owners, _balances, _workCounts, _isWorks)
 }
 
-// Claim is a paid mutator transaction binding the contract method 0xaab8ab0c.
+// AddReward is a paid mutator transaction binding the contract method 0x74de4ec4.
 //
-// Solidity: function claim(uint64 _amount) returns()
-func (_Staking *StakingTransactor) Claim(opts *bind.TransactOpts, _amount uint64) (*types.Transaction, error) {
+// Solidity: function addReward(uint256 _reward) returns()
+func (_Staking *StakingTransactor) AddReward(opts *bind.TransactOpts, _reward *big.Int) (*types.Transaction, error) {
+	return _Staking.contract.Transact(opts, "addReward", _reward)
+}
+
+// AddReward is a paid mutator transaction binding the contract method 0x74de4ec4.
+//
+// Solidity: function addReward(uint256 _reward) returns()
+func (_Staking *StakingSession) AddReward(_reward *big.Int) (*types.Transaction, error) {
+	return _Staking.Contract.AddReward(&_Staking.TransactOpts, _reward)
+}
+
+// AddReward is a paid mutator transaction binding the contract method 0x74de4ec4.
+//
+// Solidity: function addReward(uint256 _reward) returns()
+func (_Staking *StakingTransactorSession) AddReward(_reward *big.Int) (*types.Transaction, error) {
+	return _Staking.Contract.AddReward(&_Staking.TransactOpts, _reward)
+}
+
+// Claim is a paid mutator transaction binding the contract method 0x379607f5.
+//
+// Solidity: function claim(uint256 _amount) returns()
+func (_Staking *StakingTransactor) Claim(opts *bind.TransactOpts, _amount *big.Int) (*types.Transaction, error) {
 	return _Staking.contract.Transact(opts, "claim", _amount)
 }
 
-// Claim is a paid mutator transaction binding the contract method 0xaab8ab0c.
+// Claim is a paid mutator transaction binding the contract method 0x379607f5.
 //
-// Solidity: function claim(uint64 _amount) returns()
-func (_Staking *StakingSession) Claim(_amount uint64) (*types.Transaction, error) {
+// Solidity: function claim(uint256 _amount) returns()
+func (_Staking *StakingSession) Claim(_amount *big.Int) (*types.Transaction, error) {
 	return _Staking.Contract.Claim(&_Staking.TransactOpts, _amount)
 }
 
-// Claim is a paid mutator transaction binding the contract method 0xaab8ab0c.
+// Claim is a paid mutator transaction binding the contract method 0x379607f5.
 //
-// Solidity: function claim(uint64 _amount) returns()
-func (_Staking *StakingTransactorSession) Claim(_amount uint64) (*types.Transaction, error) {
+// Solidity: function claim(uint256 _amount) returns()
+func (_Staking *StakingTransactorSession) Claim(_amount *big.Int) (*types.Transaction, error) {
 	return _Staking.Contract.Claim(&_Staking.TransactOpts, _amount)
-}
-
-// LeaveStaker is a paid mutator transaction binding the contract method 0xd89085de.
-//
-// Solidity: function leaveStaker() returns()
-func (_Staking *StakingTransactor) LeaveStaker(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _Staking.contract.Transact(opts, "leaveStaker")
-}
-
-// LeaveStaker is a paid mutator transaction binding the contract method 0xd89085de.
-//
-// Solidity: function leaveStaker() returns()
-func (_Staking *StakingSession) LeaveStaker() (*types.Transaction, error) {
-	return _Staking.Contract.LeaveStaker(&_Staking.TransactOpts)
-}
-
-// LeaveStaker is a paid mutator transaction binding the contract method 0xd89085de.
-//
-// Solidity: function leaveStaker() returns()
-func (_Staking *StakingTransactorSession) LeaveStaker() (*types.Transaction, error) {
-	return _Staking.Contract.LeaveStaker(&_Staking.TransactOpts)
-}
-
-// NewStaker is a paid mutator transaction binding the contract method 0x7c59a910.
-//
-// Solidity: function newStaker() returns()
-func (_Staking *StakingTransactor) NewStaker(opts *bind.TransactOpts) (*types.Transaction, error) {
-	return _Staking.contract.Transact(opts, "newStaker")
-}
-
-// NewStaker is a paid mutator transaction binding the contract method 0x7c59a910.
-//
-// Solidity: function newStaker() returns()
-func (_Staking *StakingSession) NewStaker() (*types.Transaction, error) {
-	return _Staking.Contract.NewStaker(&_Staking.TransactOpts)
-}
-
-// NewStaker is a paid mutator transaction binding the contract method 0x7c59a910.
-//
-// Solidity: function newStaker() returns()
-func (_Staking *StakingTransactorSession) NewStaker() (*types.Transaction, error) {
-	return _Staking.Contract.NewStaker(&_Staking.TransactOpts)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -553,27 +563,6 @@ func (_Staking *StakingTransactorSession) RenounceOwnership() (*types.Transactio
 	return _Staking.Contract.RenounceOwnership(&_Staking.TransactOpts)
 }
 
-// SetTotalReword is a paid mutator transaction binding the contract method 0xc7162ea6.
-//
-// Solidity: function setTotalReword(uint256 _totalReward) returns()
-func (_Staking *StakingTransactor) SetTotalReword(opts *bind.TransactOpts, _totalReward *big.Int) (*types.Transaction, error) {
-	return _Staking.contract.Transact(opts, "setTotalReword", _totalReward)
-}
-
-// SetTotalReword is a paid mutator transaction binding the contract method 0xc7162ea6.
-//
-// Solidity: function setTotalReword(uint256 _totalReward) returns()
-func (_Staking *StakingSession) SetTotalReword(_totalReward *big.Int) (*types.Transaction, error) {
-	return _Staking.Contract.SetTotalReword(&_Staking.TransactOpts, _totalReward)
-}
-
-// SetTotalReword is a paid mutator transaction binding the contract method 0xc7162ea6.
-//
-// Solidity: function setTotalReword(uint256 _totalReward) returns()
-func (_Staking *StakingTransactorSession) SetTotalReword(_totalReward *big.Int) (*types.Transaction, error) {
-	return _Staking.Contract.SetTotalReword(&_Staking.TransactOpts, _totalReward)
-}
-
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
 //
 // Solidity: function transferOwnership(address newOwner) returns()
@@ -593,48 +582,6 @@ func (_Staking *StakingSession) TransferOwnership(newOwner common.Address) (*typ
 // Solidity: function transferOwnership(address newOwner) returns()
 func (_Staking *StakingTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _Staking.Contract.TransferOwnership(&_Staking.TransactOpts, newOwner)
-}
-
-// UpdateStakeInfo is a paid mutator transaction binding the contract method 0x30527b66.
-//
-// Solidity: function updateStakeInfo(address _stakeToken, uint256 _stakaAmount) returns()
-func (_Staking *StakingTransactor) UpdateStakeInfo(opts *bind.TransactOpts, _stakeToken common.Address, _stakaAmount *big.Int) (*types.Transaction, error) {
-	return _Staking.contract.Transact(opts, "updateStakeInfo", _stakeToken, _stakaAmount)
-}
-
-// UpdateStakeInfo is a paid mutator transaction binding the contract method 0x30527b66.
-//
-// Solidity: function updateStakeInfo(address _stakeToken, uint256 _stakaAmount) returns()
-func (_Staking *StakingSession) UpdateStakeInfo(_stakeToken common.Address, _stakaAmount *big.Int) (*types.Transaction, error) {
-	return _Staking.Contract.UpdateStakeInfo(&_Staking.TransactOpts, _stakeToken, _stakaAmount)
-}
-
-// UpdateStakeInfo is a paid mutator transaction binding the contract method 0x30527b66.
-//
-// Solidity: function updateStakeInfo(address _stakeToken, uint256 _stakaAmount) returns()
-func (_Staking *StakingTransactorSession) UpdateStakeInfo(_stakeToken common.Address, _stakaAmount *big.Int) (*types.Transaction, error) {
-	return _Staking.Contract.UpdateStakeInfo(&_Staking.TransactOpts, _stakeToken, _stakaAmount)
-}
-
-// UpdateStaker is a paid mutator transaction binding the contract method 0x3b5036d7.
-//
-// Solidity: function updateStaker(address _owner, uint256 _balance, uint256 _workCount, bool _isWork) returns()
-func (_Staking *StakingTransactor) UpdateStaker(opts *bind.TransactOpts, _owner common.Address, _balance *big.Int, _workCount *big.Int, _isWork bool) (*types.Transaction, error) {
-	return _Staking.contract.Transact(opts, "updateStaker", _owner, _balance, _workCount, _isWork)
-}
-
-// UpdateStaker is a paid mutator transaction binding the contract method 0x3b5036d7.
-//
-// Solidity: function updateStaker(address _owner, uint256 _balance, uint256 _workCount, bool _isWork) returns()
-func (_Staking *StakingSession) UpdateStaker(_owner common.Address, _balance *big.Int, _workCount *big.Int, _isWork bool) (*types.Transaction, error) {
-	return _Staking.Contract.UpdateStaker(&_Staking.TransactOpts, _owner, _balance, _workCount, _isWork)
-}
-
-// UpdateStaker is a paid mutator transaction binding the contract method 0x3b5036d7.
-//
-// Solidity: function updateStaker(address _owner, uint256 _balance, uint256 _workCount, bool _isWork) returns()
-func (_Staking *StakingTransactorSession) UpdateStaker(_owner common.Address, _balance *big.Int, _workCount *big.Int, _isWork bool) (*types.Transaction, error) {
-	return _Staking.Contract.UpdateStaker(&_Staking.TransactOpts, _owner, _balance, _workCount, _isWork)
 }
 
 // StakingOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the Staking contract.

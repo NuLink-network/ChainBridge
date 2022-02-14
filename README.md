@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/NuLink-network"><img src="https://img.shields.io/badge/Playground-NuLink_Network-brightgreen?logo=Parity%20Substrate" /></a>
   <a href="http://nulink.org/"><img src="https://img.shields.io/badge/made%20by-NuLink%20Foundation-blue.svg?style=flat-square" /></a>
-  <a href="https://github.com/NuLink-network/nulink-heco"><img src="https://img.shields.io/badge/project-Nulink_Heco-yellow.svg?style=flat-square" /></a>
+  <a href="https://github.com/NuLink-network/nulink-watcher"><img src="https://img.shields.io/badge/project-Nulink_Watcher-yellow.svg?style=flat-square" /></a>
 </p>
 
 This is the Repo for NuLink watcher nodes. The watcher nodes would use the ChainBridge(an ETH-Polkadot bridge) to retrieve the information of stakers and workers from the Nucypher contract in Ethereum. All active watcher nodes constuct the watcher network which provide the necessary data to the mirror pallet in Polkadot.

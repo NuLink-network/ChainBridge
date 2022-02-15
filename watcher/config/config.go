@@ -25,8 +25,8 @@ func IsEmpty(s string) bool {
 }
 
 type Config struct {
-	EthereumConfig  EthereumConfig  `json:"ethereumConfig"`
-	SubstrateConfig SubstrateConfig `json:"substrateConfig"`
+	EthereumConfig    EthereumConfig    `json:"ethereumConfig"`
+	NuLinkChainConfig NuLinkChainConfig `json:"nuLinkChainConfig"`
 }
 
 type EthereumConfig struct {
@@ -37,7 +37,7 @@ type EthereumConfig struct {
 	//BlockConfirmations  *big.Int `json:"blockConfirmations"`
 }
 
-type SubstrateConfig struct {
+type NuLinkChainConfig struct {
 	URL string `json:"url"`
 	//Seed    string `json:"seed"`
 	//Network uint8  `json:"network"`
@@ -50,10 +50,10 @@ func (c *Config) validate() error {
 	if IsEmpty(c.EthereumConfig.DepositContractAddr) {
 		return fmt.Errorf("required field DepositContractAddr for ethereum")
 	}
-	if IsEmpty(c.SubstrateConfig.URL) {
-		return fmt.Errorf("required field URL for substrate")
+	if IsEmpty(c.NuLinkChainConfig.URL) {
+		return fmt.Errorf("required field URL for nuLinkChain")
 	}
-	//if IsEmpty(c.SubstrateConfig.Seed) {
+	//if IsEmpty(c.NuLinkChainConfig.Seed) {
 	//	return fmt.Errorf("required field Seed for substrate")
 	//}
 	return nil

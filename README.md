@@ -31,7 +31,7 @@ The structure of the configuration file is as:
     "stakeContractAddr": "0x70F70012d1B9F36A3B8db77A58f62547FB1bA19a",
     "policyContractAddr": "0x4d2e3B25b2982F15022BE1a43757DBed3F529fe4"
   },
-  "substrateConfig": {
+  "nuLinkChainConfig": {
     "url": "ws://127.0.0.1:9944"
   }
 }

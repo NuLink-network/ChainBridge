@@ -63,12 +63,12 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 		return nil, err
 	}
 
-	//kp, err := signature.KeyringPairFromSecret(cfg.SubstrateConfig.Seed, cfg.SubstrateConfig.Network)
+	//kp, err := signature.KeyringPairFromSecret(cfg.NuLinkChainConfig.Seed, cfg.NuLinkChainConfig.Network)
 	//if err != nil {
 	//	return nil, err
 	//}
 
-	subconn := substrate.NewConnection(cfg.SubstrateConfig.URL, params.Watcher, stop)
+	subconn := substrate.NewConnection(cfg.NuLinkChainConfig.URL, params.Watcher, stop)
 	if err := subconn.Connect(); err != nil {
 		return nil, err
 	}

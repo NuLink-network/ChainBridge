@@ -17,32 +17,23 @@ This is the Repo for NuLink watcher nodes. The watcher nodes would use the Chain
 The configuration file path can be specified on the command line or the default path can be used.
 
 The structure of the configuration file is as:
-```json
+```json5
 {
   "ethereumConfig": {
-    "url": "https://mainnet.infura.io/v3/8cce6b470ad44fb5a3621aa34243647f",
+    // the url of the ethereum RPC node
+    "url": "https://mainnet.infura.io/v3/your_project_id",
+    // whether the url of the ethereum RPC node is http protocol, 
+    // currently only the http protocol is supported, so this parameter must be true
     "http": true,
+    // the address of the nucypher deposit contract
     "depositContractAddr": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2"
   },
-  "platonConfig": {
-    "url": "http://35.247.155.162:6789",
-    "http": true,
-    "privateKey": "814a3ba398642139a6436632f46921d9ab62e05c365598f4949651af40e537ac",
-    "stakeContractAddr": "0x70F70012d1B9F36A3B8db77A58f62547FB1bA19a",
-    "policyContractAddr": "0x4d2e3B25b2982F15022BE1a43757DBed3F529fe4"
-  },
   "nuLinkChainConfig": {
+    // the url of the NuLink RPC node
     "url": "ws://127.0.0.1:9944"
   }
 }
 ```
-The default configuration file paths for different systems are as follows:
-
-| OS| File Path |
-| -------- | ------  | 
-| darwin  | $HOME/Library/NuLinkWatcher/config.json | 
-| windows | $HOME/AppData/Roaming/NuLinkWatcher/config.json  | 
-| other   | $HOME/NuLinkWatcher/config.json | 
 
 ### Build
 ```shell
@@ -52,11 +43,6 @@ go build -o watcher main.go
 
 ## Run
 Going watcher -h can get help infos.
-
-### Run the watcher with default parameters
-```shell
-./watcher
-```
 
 ### Run the watcher with the specified parameters
 ```shell

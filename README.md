@@ -46,7 +46,7 @@ Going watcher -h can get help infos.
 
 ### Run the watcher with the specified parameters
 ```shell
-./watcher --verbosity debug --config $HOME/config.json --file $HOME/stake_info.json
+./watcher --verbosity debug --config $HOME/config.json --file $HOME/stake_info.json --mock
 ```
 
 ### Command parameters
@@ -57,3 +57,5 @@ You can use the default configuration or specify related configurations. The par
 `config`: This flag can be used to specify a json configuration file.
 
 `file`: This flag can be used to specify a last stake info file. The contents of this file do not require user editing. If no file is specified, the program will automatically create this file
+
+`mock`: Start the project in mock mode.

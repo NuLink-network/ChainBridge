@@ -12,6 +12,10 @@ const (
 	defaultLatestBlockFile = "/latest_block"
 )
 
+const (
+	EpochSize uint64 = 1000
+)
+
 func DefaultStakeInfoFile() string {
 	return DefaultDir() + defaultStakeInfoFile
 }

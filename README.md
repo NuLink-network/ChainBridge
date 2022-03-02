@@ -19,6 +19,8 @@ The configuration file path can be specified on the command line or the default 
 The structure of the configuration file is as:
 ```json5
 {
+  // stake info sync frequency, 100 means sync every 100 blocks
+  "epochSize": 100,
   "ethereumConfig": {
     // the url of the ethereum RPC node
     "url": "https://mainnet.infura.io/v3/your_project_id",

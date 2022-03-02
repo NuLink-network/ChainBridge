@@ -28,7 +28,7 @@ var accountID types.AccountID
 var stakeInfoList = make(substrate.StakeInfos, 0)
 
 type Listener struct {
-	Config  config.EthereumConfig
+	Config  *config.Config
 	Ethconn *Connection
 	Subconn *substrate.Connection
 	//LatestBlockPath   string
@@ -104,7 +104,7 @@ func (l *Listener) PollBlocks() error {
 // getDepositEventsForBlock looks for the deposit event in the latest block
 func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 	log.Info("Querying block for deposit events", "block", latestBlock)
-	query := buildQuery(ethcommon.HexToAddress(l.Config.DepositContractAddr), Deposited, latestBlock, latestBlock)
+	query := buildQuery(ethcommon.HexToAddress(l.Config.EthereumConfig.DepositContractAddr), Deposited, latestBlock, latestBlock)
 
 	// querying for logs
 	logs, err := l.Ethconn.Client.FilterLogs(context.Background(), query)
@@ -128,7 +128,7 @@ func (l *Listener) getDepositEventsForBlock(latestBlock *big.Int) error {
 		})
 		log.Info("find deposit event", "staker", staker, "value", value, "periods", periods)
 	}
-	if latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
+	if latestBlock.Uint64()%l.Config.EpochSize == 0 {
 		if len(stakeInfoList) == 0 {
 			return nil
 		}
@@ -159,7 +159,7 @@ func buildQuery(contract ethcommon.Address, sig EventSig, startBlock *big.Int, e
 }
 
 func (l *Listener) syncStakeInfos(latestBlock *big.Int) error {
-	if first || latestBlock.Uint64()%uint64(params.EpochLength) == 0 {
+	if first || latestBlock.Uint64()%l.Config.EpochSize == 0 {
 		first = false
 		log.Info("ready to update stake info to nulink", "block", latestBlock)
 
@@ -231,7 +231,7 @@ func fileExists(fileName string) (bool, error) {
 
 func (l *Listener) GetStakeInfo() (substrate.StakeInfos, error) {
 	stakeInfos := make(substrate.StakeInfos, 0)
-	nc, err := nucypher.NewNucypher(ethcommon.HexToAddress(l.Config.DepositContractAddr), l.Ethconn.Client)
+	nc, err := nucypher.NewNucypher(ethcommon.HexToAddress(l.Config.EthereumConfig.DepositContractAddr), l.Ethconn.Client)
 	if err != nil {
 		log.Error("failed to new nucypher", "error", err)
 		return stakeInfos, nil

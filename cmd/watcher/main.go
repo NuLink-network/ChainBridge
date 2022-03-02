@@ -75,7 +75,7 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 	}
 
 	return &ethereum.Listener{
-		Config:  cfg.EthereumConfig,
+		Config:  cfg,
 		Ethconn: ethconn,
 		Subconn: subconn,
 		Stop:    stop,

@@ -25,6 +25,7 @@ func IsEmpty(s string) bool {
 }
 
 type Config struct {
+	EpochSize         uint64            `json:"epochSize"`
 	EthereumConfig    EthereumConfig    `json:"ethereumConfig"`
 	NuLinkChainConfig NuLinkChainConfig `json:"nuLinkChainConfig"`
 }
@@ -44,6 +45,9 @@ type NuLinkChainConfig struct {
 }
 
 func (c *Config) validate() error {
+	if c.EpochSize == 0 {
+		c.EpochSize = EpochSize
+	}
 	if IsEmpty(c.EthereumConfig.URL) {
 		return fmt.Errorf("required field URL for ethereum")
 	}

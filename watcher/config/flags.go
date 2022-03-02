@@ -28,4 +28,8 @@ var (
 		Usage: "Store last stake info file",
 		Value: DefaultStakeInfoFile(),
 	}
+	MockFlag = &cli.BoolFlag{
+		Name:  "mock",
+		Usage: "mock mode startup project",
+	}
 )

@@ -28,6 +28,7 @@ var (
 )
 
 var cliFlags = []cli.Flag{
+	config.MockFlag,
 	config.VerbosityFlag,
 	config.ConfigFileFlag,
 	config.StakeInfoFileFlag,
@@ -84,9 +85,14 @@ func InitializeChain(cfg *config.Config) (*ethereum.Listener, error) {
 var listener *ethereum.Listener
 
 func run(ctx *cli.Context) error {
+	if !ctx.Bool(config.MockFlag.Name) {
+		panic("only supports start in mock mode")
+	}
+
 	if err := setup(ctx); err != nil {
 		return err
 	}
+	log.Info("Start mock mode...")
 
 	cfg, err := config.GetConfig(ctx)
 	if err != nil {

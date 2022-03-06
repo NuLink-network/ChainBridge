@@ -1,0 +1,10 @@
+{
+  "ethereumConfig": {
+    "url": "https://mainnet.infura.io/v3/your_project_id",
+    "http": true,
+    "depositContractAddr": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2"
+  },
+  "nuLinkChainConfig": {
+    "url": "ws://127.0.0.1:9944"
+  }
+}

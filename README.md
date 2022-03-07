@@ -9,12 +9,20 @@
   <a href="http://nulink.org/"><img src="https://img.shields.io/badge/made%20by-NuLink%20Foundation-blue.svg?style=flat-square" /></a>
   <a href="https://github.com/NuLink-network/nulink-watcher"><img src="https://img.shields.io/badge/project-Nulink_Watcher-yellow.svg?style=flat-square" /></a>
 </p>
+## Introduction
+This is the Repo for NuLink watcher nodes. The watcher nodes would use the ChainBridge(an ETH-Polkadot bridge) to retrieve the information of stakers and workers from the Nucypher contract in Ethereum.  
 
-This is the Repo for NuLink watcher nodes. The watcher nodes would use the ChainBridge(an ETH-Polkadot bridge) to retrieve the information of stakers and workers from the Nucypher contract in Ethereum. All active watcher nodes constuct the watcher network which provide the necessary data to the mirror pallet in Polkadot.
+## Work flow
+Once the watcher nodes started, it would first try to register in [NuProxy pallet](https://github.com/NuLink-network/nulink-chain/blob/main/pallets/nuproxy/src/lib.rs). It will fall into the following three situation:
+1. If the node is illegal for registration, it will report a warning and exit.
+2. If the node is legal for registration and already registered,  it will jump to the next step. 
+3. Otherwise it would successfully register into the NuProxy pallet.
+
+After the initial step, the watcher nodes would monitor the Ethereum network. If the staker information stored in NuCypher contract changes,  it would synchronize the updated status by sending the [updating extrinsic](https://github.com/NuLink-network/nulink-chain/blob/main/pallets/nuproxy/src/lib.rs#L169) in Polkadto Parachain periodically. 
 
 ## Getting Started
 ### Edit configuration file 
-You can edit [it](https://github.com/NuLink-network/nulink-watcher/blob/main/config.json).
+You can edit the default configuration file [here ](https://github.com/NuLink-network/nulink-watcher/blob/main/config.json) accordingly.
 
 The structure of the configuration file is as:
 ```json5

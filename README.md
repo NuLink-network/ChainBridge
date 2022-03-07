@@ -14,7 +14,7 @@ This is the Repo for NuLink watcher nodes. The watcher nodes would use the Chain
 
 ## Getting Started
 ### Edit configuration file 
-The configuration file path can be specified on the command line or the default path can be used.
+You can edit [it](https://github.com/NuLink-network/nulink-watcher/blob/main/config.json).
 
 The structure of the configuration file is as:
 ```json5

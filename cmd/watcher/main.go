@@ -116,7 +116,7 @@ func run(ctx *cli.Context) error {
 	//listener.LatestBlockPath = lp
 	listener.LastStakeInfoPath = ctx.String(config.StakeInfoFileFlag.Name)
 
-	if err := listener.Subconn.SubmitTx(substrate.RegisterWatcher); err != nil {
+	if err := listener.Subconn.RegisterWatcher(); err != nil {
 		log.Error("failed to register watcher", "error", err)
 		return err
 	}

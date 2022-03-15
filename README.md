@@ -56,7 +56,7 @@ Going watcher -h can get help infos.
 
 ### Run the watcher with the specified parameters
 ```shell
-./watcher --verbosity debug --config $HOME/config.json --file $HOME/stake_info.json --mock
+./watcher --config $HOME/config.json  --mock
 ```
 
 ### Command parameters

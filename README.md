@@ -56,7 +56,7 @@ Going watcher -h can get help infos.
 
 ### Run the watcher with the specified parameters
 ```shell
-./watcher --config $HOME/config.json  --mock
+./watcher --config ../../config.json  --mock
 ```
 
 ### Command parameters

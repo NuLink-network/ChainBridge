@@ -60,12 +60,8 @@ Going watcher -h can get help infos.
 ```
 
 ### Command parameters
-You can use the default configuration or specify related configurations. The parameters you can specify are mainly the following three.
-
-`verbosity`: Specify the output level of the log, the default is the info level, the optional levels include trace, debug, info, warn, error, crit.
+You can use the default configuration or specify related configurations. The parameters you can specify are mainly the following.
 
 `config`: This flag can be used to specify a json configuration file.
-
-`file`: This flag can be used to specify a last stake info file. The contents of this file do not require user editing. If no file is specified, the program will automatically create this file
 
 `mock`: Start the project in mock mode.
